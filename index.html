@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="style.css"/>
+    <title>Ular Tangga</title>
+</head>
+<body>
+    <button id="reset" onclick="reset()">Reset</button>
+    <div class="tabel" id="mode">
+        <div class="isi2">
+            <input type="radio" id="2p" name="mode" value="2p" checked>
+            <label for="2p">2P</label>
+        </div>
+        <div class="isi2">
+            <input type="radio" id="3p" name="mode" value="3p">
+            <label for="3p">3P</label>
+        </div>
+        <div class="isi2">
+            <input type="radio" id="4p" name="mode" value="4p">
+            <label for="4p">4P</label>
+        </div>
+    </div>
+    <div class="tabel1">
+        <div class="isi3" id="cp1">
+            <h2 id="p1">A: 0</h2>
+        </div>
+        <div class="isi3" id="cp2">
+            <h2 id="p2">B: 0</h2>
+        </div>
+        <div class="isi3" id="cp3">
+            <h2 id="p3">C: 0</h2>
+        </div>
+        <div class="isi3" id="cp4">
+            <h2 id="p4">D: 0</h2>
+        </div>
+    </div>
+    <h3 id="uru">Giliran ke: 0</h3>
+    <ul id="p"></ul>
+    <button id="acak" onclick="acak()"><img src="images.png" alt="Icon" width="35" height="35"></button>
+    <script src="script.js"></script>
+</body>
+</html>

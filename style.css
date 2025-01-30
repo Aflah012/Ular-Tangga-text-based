@@ -1,0 +1,86 @@
+body {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    background-color: black;
+    color: white;
+    flex-direction: column;
+}
+
+button {
+    width: 50%;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 5px;
+}
+
+#acak {
+    border: 1px solid white;
+    background: none;
+    width: 250px;
+    height: 60px;
+}
+
+#reset {
+    background-color: red;
+    color: azure;
+}
+
+ul {
+    font-size: 20px;
+    height: 440px;
+    overflow-y: auto;
+    width: 400px;
+    list-style: none;
+    padding: 0;
+}
+
+h1, h2, h3, h4 {
+    margin: 5px;
+}
+
+ul li {
+    margin: 5px;
+    border: 1px solid white;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.tabel {
+    width: 300px;
+}
+
+.tabel1 {
+    margin-top: 1px;
+    width: 400px;
+}
+
+.tabel, .tabel1 {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+}
+
+.isi {
+    width: 50%;
+}
+
+.isi2 {
+    width: 33%;
+}
+.isi3 {
+    width: 25%;
+}
+.isi, .isi2, .isi3 {
+    flex-direction: column;
+    margin: 1px 1px;
+    border: 1px solid white;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.green {
+    color: lime;
+}
