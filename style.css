@@ -84,3 +84,30 @@ ul li {
 .green {
     color: lime;
 }
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(10, 50px);
+    gap: 2px;
+    margin: 20px;
+}
+
+.grid-cell {
+    width: 50px;
+    height: 50px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.snake {
+    background-color: red;
+}
+
+.ladder {
+    background-color: green;
+}
