@@ -25,9 +25,7 @@ function acak() {
     hitungRekor();
     let playerr = player();
     ke++;
-    riwayat(playerr, apa);/*
-    hitungSkor(playerr, apa);
-    riwayat(playerr, apa);*/
+    riwayat(playerr, apa);
     selanjutnya(h);
     AI(h);
     uru.textContent = 'Giliran ke: '+ke;
@@ -213,9 +211,6 @@ function aturanSkor(s) {
     } else {
         return s;
     }
-    /*else if (s === 100 || s > 100) {
-        return 100;
-    }*/
 }
 
 function reset() {
@@ -310,7 +305,6 @@ function player() {
     } else {
         return 'selesai';
     }
-
 }
 
 function pemilih() {
@@ -380,7 +374,34 @@ klikpemain('cp4', beriNama);
 pemain('p1', A, p1);
 pemain('p2', B, p2);
 pemain('p3', C, p3);
-pemain('p4', D, p4);
 
-// 5 > 26, 9 > 31, 28 > 47, 39 > 1, 43 > 80, 55 > 37, 68 > 50
-// 73 > 91, 77 > 96, 93 > 75, 99 > 83
+function createGameBoard() {
+    const board = document.getElementById('game-board');
+    board.innerHTML = '';
+    for (let i = 1; i <= 100; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.textContent = i;
+        if (isSnake(i)) {
+            cell.classList.add('snake');
+        } else if (isLadder(i)) {
+            cell.classList.add('ladder');
+        }
+        board.appendChild(cell);
+    }
+}
+
+function isSnake(square) {
+    // Define snake positions (start square)
+    const snakes = [16, 47, 49, 56, 62, 64, 66, 87, 93, 95, 98];
+    return snakes.includes(square);
+}
+
+function isLadder(square) {
+    // Define ladder positions (start square)
+    const ladders = [1, 4, 9, 21, 28, 36, 51, 71, 80];
+    return ladders.includes(square);
+}
+
+// Call createGameBoard() when the page loads
+document.addEventListener('DOMContentLoaded', createGameBoard);
