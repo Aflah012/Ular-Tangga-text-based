@@ -1,46 +1,88 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="id">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" href="style.css"/>
-    <title>Ular Tangga</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎲 Ular Tangga - Text Based</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <button id="reset" onclick="reset()">Reset</button>
-    <div class="tabel" id="mode">
-        <div class="isi2">
-            <input type="radio" id="2p" name="mode" value="2p" checked>
-            <label for="2p">2P</label>
+  <header class="game-header">
+    <h1>🎲 Ular Tangga</h1>
+    <p class="game-subtitle">Text Based Edition</p>
+  </header>
+
+  <main class="game-container">
+    <!-- Controls Section -->
+    <section class="controls-section" aria-label="Kontrol Permainan">
+      <button id="btn-roll" class="btn btn-primary" disabled>🎲 Lempar Dadu</button>
+      <button id="btn-reset" class="btn btn-danger">🔄 Reset Game</button>
+      
+      <fieldset id="player-mode" class="mode-selector">
+        <legend>Pilih Jumlah Pemain</legend>
+        <label><input type="radio" name="playerCount" value="2" checked /> 2 Pemain</label>
+        <label><input type="radio" name="playerCount" value="3" /> 3 Pemain</label>
+        <label><input type="radio" name="playerCount" value="4" /> 4 Pemain</label>
+      </fieldset>
+    </section>
+
+    <!-- Players Section -->
+    <section class="players-section" aria-label="Daftar Pemain">
+      <div class="players-grid">
+        <div id="player-1" class="player-card" data-player-id="1" tabindex="0" role="button" aria-label="Pemain 1">
+          <h3 class="player-name">Pemain A</h3>
+          <p class="player-score">Skor: <span class="score-value">0</span></p>
+          <p class="player-rank">Rank: <span class="rank-value">-</span></p>
         </div>
-        <div class="isi2">
-            <input type="radio" id="3p" name="mode" value="3p">
-            <label for="3p">3P</label>
+        <div id="player-2" class="player-card" data-player-id="2" tabindex="0" role="button" aria-label="Pemain 2">
+          <h3 class="player-name">Pemain B</h3>
+          <p class="player-score">Skor: <span class="score-value">0</span></p>
+          <p class="player-rank">Rank: <span class="rank-value">-</span></p>
         </div>
-        <div class="isi2">
-            <input type="radio" id="4p" name="mode" value="4p">
-            <label for="4p">4P</label>
+        <div id="player-3" class="player-card hidden" data-player-id="3" tabindex="0" role="button" aria-label="Pemain 3">
+          <h3 class="player-name">Pemain C</h3>
+          <p class="player-score">Skor: <span class="score-value">0</span></p>
+          <p class="player-rank">Rank: <span class="rank-value">-</span></p>
         </div>
+        <div id="player-4" class="player-card hidden" data-player-id="4" tabindex="0" role="button" aria-label="Pemain 4">
+          <h3 class="player-name">Pemain D</h3>
+          <p class="player-score">Skor: <span class="score-value">0</span></p>
+          <p class="player-rank">Rank: <span class="rank-value">-</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Info Section -->
+    <section class="game-info" aria-label="Informasi Permainan">
+      <p id="turn-counter" class="turn-display">Giliran ke: <span id="turn-number">0</span></p>
+      <p id="current-player" class="current-player-display">Giliran: <span id="current-player-name">-</span></p>
+    </section>
+
+    <!-- Game Board (Visual) -->
+    <section class="board-section" aria-label="Papan Permainan">
+      <div id="game-board" class="game-board" role="grid" aria-label="Papan ular tangga 10x10"></div>
+    </section>
+
+    <!-- History Log -->
+    <section class="history-section" aria-label="Riwayat Langkah">
+      <h3>📜 Riwayat Permainan</h3>
+      <ol id="move-history" class="move-history" aria-live="polite"></ol>
+    </section>
+
+    <!-- Win Announcement -->
+    <div id="win-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="win-title">
+      <div class="modal-content">
+        <h2 id="win-title">🎉 Selamat!</h2>
+        <p id="win-message"></p>
+        <button id="btn-play-again" class="btn btn-primary">Main Lagi</button>
+      </div>
     </div>
-    <div class="tabel1">
-        <div class="isi3" id="cp1">
-            <h2 id="p1">A: 0</h2>
-        </div>
-        <div class="isi3" id="cp2">
-            <h2 id="p2">B: 0</h2>
-        </div>
-        <div class="isi3" id="cp3">
-            <h2 id="p3">C: 0</h2>
-        </div>
-        <div class="isi3" id="cp4">
-            <h2 id="p4">D: 0</h2>
-        </div>
-    </div>
-    <h3 id="uru">Giliran ke: 0</h3>
-    <div id="game-board"></div>
-    <ul id="p"></ul>
-    <button id="acak" onclick="acak()"><img src="images.png" alt="Icon" width="35" height="35"></button>
-    <script src="script.js"></script>
+  </main>
+
+  <footer class="game-footer">
+    <p>Dibuat dengan ❤️ oleh Aflah</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

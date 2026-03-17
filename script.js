@@ -1,407 +1,481 @@
-const uru = document.getElementById('uru');
-const select = 'gray';
+/**
+ * 🎲 Ular Tangga - Text Based Game
+ * Refactored with Class-based Architecture & Best Practices
+ * @author Aflah
+ */
 
-let ke = 0;
-let interval;
-let ii;
-let skor = 0;
-let aturan = 0;
-let cek = 0;
-let batas = 0;
-let rekor = 0;
-let klipkali = false;
-let game = false;
-let [p1, p2, p3, p4] = [0, 0, 0, 0];
-let [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
-let [A, B, C, D] = ['A', 'B', 'C', 'D'];
-let h = A;
+// ========================================
+// CONSTANTS & CONFIGURATION
+// ========================================
+const CONFIG = {
+  WIN_SCORE: 100,
+  MAX_CONSECUTIVE_SIXES: 3,
+  DICE_MIN: 1,
+  DICE_MAX: 6,
+  ANIMATION_INTERVAL: 500,
+  DEFAULT_PLAYER_NAMES: ['A', 'B', 'C', 'D'],
+};
 
-function acak() {
-    game = true;
-    document.getElementById('mode').style.display = 'none';
-    let apa = Math.floor(Math.random() * 6) +1;
-    cek = apa;
-    hitungSkor(h, apa);
-    hitungRekor();
-    let playerr = player();
-    ke++;
-    riwayat(playerr, apa);
-    selanjutnya(h);
-    AI(h);
-    uru.textContent = 'Giliran ke: '+ke;
+const SNAKES = {
+  39: 1,
+  55: 37,
+  68: 50,
+  93: 75,
+  99: 83,
+};
+
+const LADDERS = {
+  5: 26,
+  9: 31,
+  28: 47,
+  43: 80,
+  73: 91,
+  77: 96,
+};
+
+// ========================================
+// GAME STATE CLASS
+// ========================================
+class GameState {
+  constructor(playerCount = 2) {
+    this.turn = 0;
+    this.currentPlayerIndex = 0;
+    this.consecutiveSixes = 0;
+    this.isGameOver = false;
+    this.playerCount = playerCount;
+    this.players = this._initializePlayers();
+    this.history = [];
+  }
+
+  _initializePlayers() {    return Array.from({ length: 4 }, (_, index) => ({
+      id: index + 1,
+      name: CONFIG.DEFAULT_PLAYER_NAMES[index],
+      score: 0,
+      rank: null,
+      isFinished: false,
+    }));
+  }
+
+  get currentPlayer() {
+    return this.players[this.currentPlayerIndex];
+  }
+
+  get activePlayers() {
+    return this.players.slice(0, this.playerCount);
+  }
+
+  reset() {
+    this.turn = 0;
+    this.currentPlayerIndex = 0;
+    this.consecutiveSixes = 0;
+    this.isGameOver = false;
+    this.players = this._initializePlayers();
+    this.history = [];
+  }
 }
 
-function selanjutnya(aa) {
-    if (aa === A) {
-        klip('cp1');
-    } else if (aa === B) {
-        klip('cp2');
-    } else if (aa === C) {
-        klip('cp3');
-    } else if (aa === D) {
-        klip('cp4');
+// ========================================
+// GAME LOGIC CLASS
+// ========================================
+class GameLogic {
+  constructor(state) {
+    this.state = state;
+  }
+
+  rollDice() {
+    return Math.floor(
+      Math.random() * (CONFIG.DICE_MAX - CONFIG.DICE_MIN + 1)
+    ) + CONFIG.DICE_MIN;
+  }
+
+  applyBoardRules(position) {
+    if (SNAKES[position]) {
+      return { newPosition: SNAKES[position], type: 'snake' };
     }
+    if (LADDERS[position]) {
+      return { newPosition: LADDERS[position], type: 'ladder' };
+    }
+    return { newPosition: position, type: 'normal' };
+  }
+  calculateNewPosition(currentScore, diceValue) {
+    let tentativeScore = currentScore + diceValue;
+
+    // Bounce back if exceeds win score
+    if (tentativeScore > CONFIG.WIN_SCORE) {
+      tentativeScore = CONFIG.WIN_SCORE - (tentativeScore - CONFIG.WIN_SCORE);
+    }
+
+    return this.applyBoardRules(tentativeScore);
+  }
+
+  shouldBonusTurn(diceValue, consecutiveSixes) {
+    return diceValue === 6 && consecutiveSixes < CONFIG.MAX_CONSECUTIVE_SIXES;
+  }
+
+  nextPlayerIndex() {
+    const activeCount = this.state.playerCount;
+    let nextIndex = (this.state.currentPlayerIndex + 1) % activeCount;
+    
+    // Skip finished players
+    let attempts = 0;
+    while (this.state.players[nextIndex].isFinished && attempts < activeCount) {
+      nextIndex = (nextIndex + 1) % activeCount;
+      attempts++;
+    }
+    
+    return nextIndex;
+  }
+
+  checkWinCondition(player) {
+    return player.score === CONFIG.WIN_SCORE;
+  }
+
+  assignRanks() {
+    const finishedPlayers = this.state.players
+      .filter(p => p.rank !== null)
+      .sort((a, b) => a.rank - b.rank);
+    
+    let nextRank = finishedPlayers.length + 1;
+    
+    this.state.players
+      .filter(p => p.rank === null && p.isFinished)
+      .forEach(player => {
+        player.rank = nextRank++;
+      });
+  }
 }
 
-function klip(id) {
-    document.getElementById(id).style.backgroundColor = 'green';
-    klipkali = true;
-    if (interval) {
-        clearInterval(interval);
-    }
-    interval = setInterval(() => {
-        if (!klipkali) {
-            document.getElementById(id).style.backgroundColor = 'green';
-            klipkali = true;
-        } else {
-            document.getElementById(id).style.background = 'none';
-            klipkali = false;
+// ========================================// UI MANAGER CLASS
+// ========================================
+class UIManager {
+  constructor(gameState, gameLogic) {
+    this.state = gameState;
+    this.logic = gameLogic;
+    this.elements = this._cacheElements();
+    this._bindEvents();
+  }
+
+  _cacheElements() {
+    return {
+      btnRoll: document.getElementById('btn-roll'),
+      btnReset: document.getElementById('btn-reset'),
+      btnPlayAgain: document.getElementById('btn-play-again'),
+      playerMode: document.getElementById('player-mode'),
+      turnNumber: document.getElementById('turn-number'),
+      currentPlayerName: document.getElementById('current-player-name'),
+      moveHistory: document.getElementById('move-history'),
+      winModal: document.getElementById('win-modal'),
+      winMessage: document.getElementById('win-message'),
+      gameBoard: document.getElementById('game-board'),
+      playerCards: document.querySelectorAll('.player-card'),
+    };
+  }
+
+  _bindEvents() {
+    this.elements.btnRoll.addEventListener('click', () => this.handleRoll());
+    this.elements.btnReset.addEventListener('click', () => this.handleReset());
+    this.elements.btnPlayAgain.addEventListener('click', () => this.handleReset());
+    
+    // Player name setup on click
+    this.elements.playerCards.forEach(card => {
+      card.addEventListener('click', (e) => this.handlePlayerSetup(e));
+      card.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.handlePlayerSetup(e);
         }
-    },
-        500);
-    if (!game && interval) {
-        clearInterval(interval);
-        document.getElementById(id).style.background = 'none';
-    }
-}
+      });
+    });
 
-function beriNama() {
-    if (!game) {
-        if (this.id === 'cp1') {
-            A = prompt('A:');
-            h = A;
-            pemain('p1', A, p1);
-        } else if (this.id === 'cp2') {
-            B = prompt('B:');
-            pemain('p2', B, p2);
-        } else if (this.id === 'cp3') {
-            C = prompt('C:');
-            pemain('p3', C, p3);
-        } else if (this.id === 'cp4') {
-            D = prompt('D:');
-            pemain('p4', D, p4);
-        }
-    }
-}
+    // Player count change
+    document.querySelectorAll('input[name="playerCount"]').forEach(radio => {
+      radio.addEventListener('change', (e) => this.handlePlayerCountChange(e));
+    });
+  }
 
-function riwayat(player, a) {
-    const tomacak = document.getElementById('acak');
-    let mode = document.querySelector('input[name="mode"]:checked').value;
-    const p = document.getElementById('p');
+  handlePlayerSetup(event) {
+    if (this.state.turn > 0) return; // Game already started    
+    const card = event.currentTarget;
+    const playerId = parseInt(card.dataset.playerId);
+    const player = this.state.players[playerId - 1];
+    
+    const newName = prompt(`Masukkan nama untuk ${player.name}:`, player.name);
+    if (newName && newName.trim()) {
+      player.name = newName.trim();
+      this.updatePlayerDisplay(player);
+    }
+  }
+
+  handlePlayerCountChange(event) {
+    const newCount = parseInt(event.target.value);
+    this.state.playerCount = newCount;
+    
+    // Show/hide player cards
+    this.elements.playerCards.forEach((card, index) => {
+      if (index >= newCount && index < 4) {
+        card.classList.add('hidden');
+      } else {
+        card.classList.remove('hidden');
+      }
+    });
+    
+    // Reset game when changing player count before start
+    if (this.state.turn === 0) {
+      this.state.reset();
+      this.renderAll();
+    }
+  }
+
+  async handleRoll() {
+    if (this.state.isGameOver) return;
+    
+    this.elements.btnRoll.disabled = true;
+    
+    const diceValue = this.logic.rollDice();
+    const player = this.state.currentPlayer;
+    const oldScore = player.score;
+    
+    // Calculate new position
+    const { newPosition, type } = this.logic.calculateNewPosition(
+      player.score, 
+      diceValue
+    );
+    
+    // Update player score
+    player.score = newPosition;
+    this.state.turn++;    
+    // Update consecutive sixes counter
+    if (diceValue === 6) {
+      this.state.consecutiveSixes++;
+    } else {
+      this.state.consecutiveSixes = 0;
+    }
+    
+    // Create history entry
+    const historyEntry = this._createHistoryEntry(
+      player, diceValue, oldScore, newPosition, type
+    );
+    this.state.history.push(historyEntry);
+    
+    // Check win condition
+    if (this.logic.checkWinCondition(player)) {
+      player.isFinished = true;
+      if (player.rank === null) {
+        const finishedCount = this.state.players.filter(p => p.rank !== null).length;
+        player.rank = finishedCount + 1;
+      }
+      this.logic.assignRanks();
+    }
+    
+    // Update UI
+    this.updatePlayerDisplay(player);
+    this.addHistoryItem(historyEntry);
+    this.updateTurnDisplay();
+    this.highlightBoardPosition(player.score, player.id);
+    
+    // Check if game is over
+    const allFinished = this.state.activePlayers.every(p => p.isFinished);
+    if (allFinished) {
+      this.endGame();
+      return;
+    }
+    
+    // Determine next player
+    if (this.logic.shouldBonusTurn(diceValue, this.state.consecutiveSixes)) {
+      // Same player gets another turn
+      this._showBonusTurnMessage(player.name);
+    } else {
+      this.state.currentPlayerIndex = this.logic.nextPlayerIndex();
+    }
+    
+    this.updateCurrentPlayerDisplay();
+    this.elements.btnRoll.disabled = false;
+  }
+
+  _createHistoryEntry(player, dice, oldScore, newScore, type) {    let message = `${player.name}: +${dice} = ${oldScore} → ${newScore}`;
+    
+    if (type === 'snake') {
+      message += ' 🐍 Terjatuh ke ular!';
+    } else if (type === 'ladder') {
+      message += ' 🪜 Naik tangga!';
+    } else if (newScore === CONFIG.WIN_SCORE) {
+      message += ' 🎉 MENANG!';
+    } else if (oldScore + dice > CONFIG.WIN_SCORE) {
+      message += ' ↩️ Memantul!';
+    }
+    
+    return {
+      player: player.name,
+      dice,
+      oldScore,
+      newScore,
+      type,
+      message,
+      turn: this.state.turn,
+    };
+  }
+
+  _showBonusTurnMessage(playerName) {
     const li = document.createElement('li');
-    let sesskor = skor + a;
-    if (mode === '2p' && p1 === 100 && p2 === 100) {
-        pemilih();
-        tomacak.style.display = 'none';
-        game = false;
-    } else if (mode === '3p' && p1 === 100 && p2 === 100 && p3 === 100) {
-        pemilih();
-        tomacak.style.display = 'none';
-        game = false;
-    } else if (mode === '4p' && p1 === 100 && p2 === 100 && p3 === 100 &&
-        p4 === 100) {
-        pemilih();
-        tomacak.style.display = 'none';
-        game = false;
+    li.textContent = `✨ ${playerName} dapat bonus giliran (angka 6)!`;
+    li.style.borderLeftColor = '#fbbf24';
+    this.elements.moveHistory.appendChild(li);
+    this.elements.moveHistory.scrollTop = this.elements.moveHistory.scrollHeight;
+  }
+
+  addHistoryItem(entry) {
+    const li = document.createElement('li');
+    li.textContent = `[${entry.turn}] ${entry.message}`;
+    
+    // Color coding based on event type
+    if (entry.type === 'snake') {
+      li.style.borderLeftColor = 'var(--color-snake)';
+    } else if (entry.type === 'ladder') {
+      li.style.borderLeftColor = 'var(--color-ladder)';
+    } else if (entry.newScore === CONFIG.WIN_SCORE) {
+      li.style.borderLeftColor = 'var(--color-primary)';
+      li.style.fontWeight = 'bold';
     }
+    
+    this.elements.moveHistory.appendChild(li);
+    this.elements.moveHistory.scrollTop = this.elements.moveHistory.scrollHeight;
+  }
 
-    if (sesskor === aturan) {
-        if(sesskor === 100) {
-            li.innerHTML = player+': +'+a+' == '+skor+' > '+sesskor+' == <span class="green">Menang</span>';
-        } else {
-            li.textContent = player+': +'+a+' == '+skor+' > '+sesskor;
-        }
-    } else {
-        if(sesskor < aturan && aturan < 100 && sesskor < 100) {
-            li.textContent = player+': +'+a+' == '+skor+' > '+sesskor+' > '+aturan+' == Naik Tangga';
-        } else if(sesskor > aturan && aturan < 100 && sesskor < 100){
-            li.textContent = player+': +'+a+' == '+skor+' > '+sesskor+' > '+aturan+' == Masuk mulut Ular';
-        } else {
-            li.textContent = player+': +'+a+' == '+skor+' > '+sesskor+' > '+aturan+' == Gagal masuk';
-        }
+  updatePlayerDisplay(player) {    const card = document.getElementById(`player-${player.id}`);
+    if (!card) return;
+    
+    card.querySelector('.player-name').textContent = player.name;
+    card.querySelector('.score-value').textContent = player.score;
+    card.querySelector('.rank-value').textContent = 
+      player.rank ? `#${player.rank}` : '-';
+    
+    // Update visual states
+    card.classList.toggle('winner', player.rank === 1);
+    card.classList.toggle('active', 
+      !this.state.isGameOver && player.id === this.state.currentPlayer.id);
+  }
+
+  updateTurnDisplay() {
+    this.elements.turnNumber.textContent = this.state.turn;
+  }
+
+  updateCurrentPlayerDisplay() {
+    const player = this.state.currentPlayer;
+    this.elements.currentPlayerName.textContent = 
+      this.state.isGameOver ? '-' : player.name;
+    
+    // Update active state on cards
+    this.elements.playerCards.forEach(card => {
+      const playerId = parseInt(card.dataset.playerId);
+      card.classList.toggle('active', 
+        !this.state.isGameOver && playerId === player.id);
+    });
+  }
+
+  highlightBoardPosition(position, playerId) {
+    // Remove previous highlights
+    document.querySelectorAll('.grid-cell.highlighted').forEach(el => {
+      el.classList.remove('highlighted');
+    });
+    
+    // Add new highlight
+    const cell = document.querySelector(
+      `.grid-cell[data-position="${position}"]`
+    );
+    if (cell) {
+      cell.classList.add('highlighted');
+      cell.dataset.occupiedBy = playerId;
     }
-    p.appendChild(li);
-    p.scrollTop = p.scrollHeight;
-}
+  }
 
-function hitungSkor(p, s) {
-    if (p === A) {
-        skor = p1;
-        p1 += s;
-        let l = aturanSkor(p1);
-        p1 = l;
-        aturan = p1;
-        pemain('p1', A, p1);
-        return p1;
-    } else if (p === B) {
-        skor = p2;
-        p2 += s;
-        let l = aturanSkor(p2);
-        p2 = l;
-        aturan = p2;
-        pemain('p2', B, p2);
-        return p2;
-    } else if (p === C) {
-        skor = p3;
-        p3 += s;
-        let l = aturanSkor(p3);
-        p3 = l;
-        aturan = p3;
-        pemain('p3', C, p3);
-        return p3;
-    } else if (p === D) {
-        skor = p4;
-        p4 += s;
-        let l = aturanSkor(p4);
-        p4 = l;
-        aturan = p4;
-        pemain('p4', D, p4);
-        return p4;
+  endGame() {
+    this.state.isGameOver = true;
+    this.elements.btnRoll.disabled = true;    
+    // Show winner modal
+    const winner = this.state.players.find(p => p.rank === 1);
+    if (winner) {
+      this.elements.winMessage.textContent = 
+        `🏆 ${winner.name} memenangkan permainan dengan skor ${winner.score}!`;
+      this.elements.winModal.classList.remove('hidden');
     }
-}
+    
+    // Final ranking display
+    this.logic.assignRanks();
+    this.state.players
+      .slice(0, this.state.playerCount)
+      .forEach(player => this.updatePlayerDisplay(player));
+  }
 
-function hitungRekor() {
-    if (p1 === 100 && h === A) {
-        rekor++;
-        pr1 = rekor;
-        pemain('p1', A, p1);
-    } else if (p2 === 100 && h === B) {
-        rekor++;
-        pr2 = rekor;
-        pemain('p2', B, p2);
-    } else if (p3 === 100 && h === C) {
-        rekor++;
-        pr3 = rekor;
-        pemain('p3', C, p3);
-    } else if (p4 === 100 && h === D) {
-        rekor++;
-        pr4 = rekor;
-        pemain('p4', D, p4);
-    }
-}
+  handleReset() {
+    this.state.reset();
+    this.elements.winModal.classList.add('hidden');
+    this.elements.moveHistory.innerHTML = '';
+    this.elements.gameBoard.innerHTML = '';
+    
+    // Clear board highlights
+    document.querySelectorAll('.grid-cell').forEach(cell => {
+      cell.classList.remove('highlighted');
+      delete cell.dataset.occupiedBy;
+    });
+    
+    this.renderAll();
+    this.elements.btnRoll.disabled = false;
+  }
 
-function aturanSkor(s) {
-    if (s === 5) { //Ledder
-        return 26;
-    } else if (s === 9) {
-        return 31;
-    } else if (s === 28) {
-        return 47;
-    } else if (s === 43) {
-        return 80;
-    } else if (s === 73) {
-        return 91;
-    } else if (s === 77) {
-        return 96;
-    } else if (s === 39) { //Snake
-        return 1;
-    } else if (s === 55) {
-        return 37;
-    } else if (s === 68) {
-        return 50;
-    } else if (s === 93) {
-        return 75;
-    } else if (s === 99) {
-        return 83;
-    } else if (s === 100) { //Normal move
-        return 100;
-    } else if(s > 100) {
-        let i = s - 100;
-        return 100 - i;
-    } else {
-        return s;
-    }
-}
+  renderAll() {
+    this.createGameBoard();
+    this.state.activePlayers.forEach(player => this.updatePlayerDisplay(player));
+    this.updateTurnDisplay();
+    this.updateCurrentPlayerDisplay();
+  }
 
-function reset() {
-    document.getElementById('acak').style.display = 'block';
-    document.getElementById('mode').style.display = 'flex';
-    ke = 0;
-    h = A;
-    rekor = 0;
-    game = false;
-    if (interval) {
-        clearInterval(interval);
-    }
-    urutan = [];
-    [p1, p2, p3, p4] = [0, 0, 0, 0];
-    [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
-    pemain('p1', A, p1);
-    pemain('p2', B, p2);
-    pemain('p3', C, p3);
-    pemain('p4', D, p4);
-    pemilih();
-    p.innerText = '';
-    uru.textContent = 'Giliran ke: '+ke;
-    if(ii) {
-        clearInterval(ii);
-    }
-}
-
-function player() {
-    pemilih();
-    let mode = document.querySelector('input[name="mode"]:checked').value;
-    batas++;
-    if (h === A) {
-        if (cek === 6 && batas < 3 && p1 < 100) {
-            h = A;
-        } else if (p2 < 100) {
-            h = B;
-            batas = 0;
-        } else if (p3 < 100 && mode === '3p' || mode === '4p' && p3 < 100) {
-            h = C;
-            batas = 0;
-        } else if (p4 < 100 && mode === '4p') {
-            h = D;
-            batas = 0;
-        }
-        document.getElementById('cp1').style.backgroundColor = select;
-        return A;
-    } else if (h === B) {
-        if (cek === 6 && batas < 3 && p2 < 100) {
-            h = B;
-        } else if (mode === '3p' && p3 < 100 || mode === '4p' && p3 < 100) {
-            h = C;
-            batas = 0;
-        } else if (mode === '4p' && p4 < 100) {
-            h = D;
-            batas = 0;
-        } else if (p1 < 100) {
-            h = A;
-            batas = 0;
-        }
-        document.getElementById('cp2').style.backgroundColor = select;
-        return B;
-    } else if (h === C) {
-        if (cek === 6 && batas < 3 && p3 < 100) {
-            h = C;
-        } else if (mode === '4p' && p4 < 100) {
-            h = D;
-            batas = 0;
-        } else if (p1 < 100) {
-            h = A;
-            batas = 0;
-        } else if (p2 < 100) {
-            h = B;
-            batas = 0;
-        }
-        document.getElementById('cp3').style.backgroundColor = select;
-        return C;
-    } else if (h === D) {
-        if (cek === 6 && batas < 3 && p4 < 100) {
-            h = D;
-        } else if (p1 < 100) {
-            h = A;
-            batas = 0;
-        } else if (p2 < 100) {
-            h = B;
-            batas = 0;
-        } else if (p3 < 100) {
-            h = C;
-            batas = 0;
-        }
-        document.getElementById('cp4').style.backgroundColor = select;
-        return D;
-    } else {
-        return 'selesai';
-    }
-}
-
-function pemilih() {
-    document.getElementById('cp1').style.background = 'none';
-    document.getElementById('cp2').style.background = 'none';
-    document.getElementById('cp3').style.background = 'none';
-    document.getElementById('cp4').style.background = 'none';
-}
-
-function klikpemain(id, fungsi) {
-    document.getElementById(id).addEventListener('click', fungsi);
-}
-
-function pemain(id, text, teks) {
-    if(id === 'p1'&& teks === 100 && text === A) {
-        document.getElementById(id).innerText = 'No.'+pr1+'\n'+text;
-    } else if(id === 'p2'&&teks === 100 && text === B) {
-        document.getElementById(id).innerText = 'No.'+pr2+'\n'+text;
-    } else if(id === 'p3'&&teks === 100 && text === C) {
-        document.getElementById(id).innerText = 'No.'+pr3+'\n'+text;
-    } else if(id === 'p4'&&teks === 100 && text === D) {
-        document.getElementById(id).innerText = 'No.'+pr4+'\n'+text;
-    } else {
-        document.getElementById(id).innerText = text+':\n'+teks;
-    }
-}
-
-function AI(am) {
-    const tomacak = document.getElementById('acak');
-    if(!game && ii) {
-        clearInterval(ii);
-        return;
-    } else if(ii) {
-        clearInterval(ii);
-    }
-    if(cekAI(am)) {
-        tomacak.style.display = 'none';
-    } else {
-        tomacak.style.display = 'block';
-    }
-    ii = setInterval(() => {
-        if(cekAI(am)) {
-            tomacak.click();
-        }
-    }, 500);
-}
-
-function cekAI(am) {
-    if(am === 'A') {
-        return true;
-        } else if(am === 'B') {
-            return true;
-        } else if(am === 'C') {
-            return true;
-        } else if(am === 'D') {
-            return true;
-        } else {
-            return false;
-        }
-}
-
-klikpemain('cp1', beriNama);
-klikpemain('cp2', beriNama);
-klikpemain('cp3', beriNama);
-klikpemain('cp4', beriNama);
-
-pemain('p1', A, p1);
-pemain('p2', B, p2);
-pemain('p3', C, p3);
-
-function createGameBoard() {
-    const board = document.getElementById('game-board');
-    board.innerHTML = '';
-    for (let i = 1; i <= 100; i++) {
+  createGameBoard() {
+    this.elements.gameBoard.innerHTML = '';
+    
+    // Create cells in snake order (bottom-left to top-right pattern)
+    for (let row = 0; row < 10; row++) {
+      for (let col = 0; col < 10; col++) {
+        const cellNumber = this._getCellNumber(row, col);
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
-        cell.textContent = i;
-        if (isSnake(i)) {
-            cell.classList.add('snake');
-        } else if (isLadder(i)) {
-            cell.classList.add('ladder');
+        cell.textContent = cellNumber;
+        cell.dataset.position = cellNumber;        cell.setAttribute('role', 'gridcell');
+        cell.setAttribute('aria-label', `Kotak ${cellNumber}`);
+        
+        if (SNAKES[cellNumber]) {
+          cell.classList.add('snake');
+          cell.setAttribute('aria-label', `Kotak ${cellNumber} - Awal ular`);
+        } else if (LADDERS[cellNumber]) {
+          cell.classList.add('ladder');
+          cell.setAttribute('aria-label', `Kotak ${cellNumber} - Awal tangga`);
         }
-        board.appendChild(cell);
+        
+        this.elements.gameBoard.appendChild(cell);
+      }
     }
+  }
+
+  _getCellNumber(row, col) {
+    // Snake pattern: alternating row directions
+    const rowIndex = 9 - row; // Flip to start from bottom
+    const base = rowIndex * 10;
+    return rowIndex % 2 === 0 
+      ? base + col + 1 
+      : base + (10 - col);
+  }
 }
 
-function isSnake(square) {
-    // Define snake positions (start square)
-    const snakes = [39, 55, 68, 93, 99];
-    return snakes.includes(square);
-}
-
-function isLadder(square) {
-    // Define ladder positions (start square)
-    const ladders = [5, 9, 28, 43, 73, 77];
-    return ladders.includes(square);
-}
-
-// Call createGameBoard() when the page loads
-document.addEventListener('DOMContentLoaded', createGameBoard);
+// ========================================
+// INITIALIZATION
+// ========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const gameState = new GameState(2);
+  const gameLogic = new GameLogic(gameState);
+  const uiManager = new UIManager(gameState, gameLogic);
+  
+  // Initial render
+  uiManager.renderAll();
+  
+  // Enable roll button after player names are set (optional enhancement)
+  // For now, players can roll immediately with default names
+});

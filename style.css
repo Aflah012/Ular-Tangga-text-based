@@ -1,143 +1,425 @@
+/* ========================================
+   CSS VARIABLES & RESET
+   ======================================== */
+:root {
+  /* Colors */
+  --color-bg: #0a0a0a;
+  --color-text: #ffffff;
+  --color-text-muted: #b0b0b0;
+  --color-primary: #4ade80;
+  --color-primary-hover: #22c55e;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-card-bg: #1f1f1f;
+  --color-border: #333333;
+  --color-snake: #ef4444;
+  --color-ladder: #22c55e;
+  --color-active: #fbbf24;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
 body {
-    display: flex;
-    align-content: center;
-    align-items: center;
-    /* justify-items: center; */
-    background-color: black;
-    color: white;
-    flex-direction: column;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  padding: var(--spacing-md);  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-button {
-    width: 50%;
-    padding: 10px;
-    border-radius: 8px;
-    margin: 5px;
+/* ========================================
+   HEADER & FOOTER
+   ======================================== */
+.game-header {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-lg);
 }
 
-#acak {
-    border: 1px solid white;
-    background: none;
-    width: 250px;
-    height: 60px;
+.game-header h1 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-xs);
 }
 
-#reset {
-    background-color: red;
-    color: azure;
+.game-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
 }
 
-ul {
-    font-size: 20px;
-    height: 100px;
-    overflow-y: auto;
-    width: 400px;
-    list-style: none;
-    padding: 0;
+.game-footer {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+  margin-top: auto;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--color-border);
 }
 
-h1, h2, h3, h4 {
-    margin: 5px;
+/* ========================================
+   CONTROLS SECTION
+   ======================================== */
+.controls-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--color-card-bg);
+  border-radius: var(--radius-md);
 }
 
-ul li {
-    margin: 5px;
-    border: 1px solid white;
-    cursor: pointer;
-    border-radius: 5px;
-    padding: 5px;
+.mode-selector {  border: 1px solid var(--color-border);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
 }
 
-.tabel {
-    width: 300px;
+.mode-selector legend {
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
 }
 
-.tabel1 {
-    margin-top: 1px;
-    width: 400px;
+.mode-selector label {
+  margin: 0 var(--spacing-sm);
+  cursor: pointer;
 }
 
-.tabel, .tabel1 {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
-.isi {
-    width: 50%;
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.isi2 {
-    width: 33%;
-}
-.isi3 {
-    width: 25%;
-}
-.isi, .isi2, .isi3 {
-    flex-direction: column;
-    margin: 1px 1px;
-    border: 1px solid white;
-    border-radius: 5px;
-    text-align: center;
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #000;
 }
 
-.green {
-    color: lime;
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
 }
 
-#game-board {
-    display: grid;
-    gap: 2px;
-    margin: 20px;
+.btn-danger {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+.btn-danger:hover {
+  background-color: var(--color-danger-hover);
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   PLAYERS SECTION
+   ======================================== */
+.players-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.player-card {
+  background: var(--color-card-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.player-card:hover,
+.player-card:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.player-card.active {
+  border-color: var(--color-active);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
+}
+
+.player-card.winner {
+  border-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-card-bg), rgba(74, 222, 128, 0.1));
+}
+
+.player-name {
+  font-size: 1.1rem;
+  margin-bottom: var(--spacing-sm);  font-weight: 600;
+}
+
+.player-score,
+.player-rank {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: var(--spacing-xs) 0;
+}
+
+.score-value,
+.rank-value {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ========================================
+   GAME INFO
+   ======================================== */
+.game-info {
+  text-align: center;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  background: var(--color-card-bg);
+  border-radius: var(--radius-md);
+}
+
+.turn-display,
+.current-player-display {
+  margin: var(--spacing-xs) 0;
+  font-size: 1.1rem;
+}
+
+#current-player-name {
+  font-weight: 700;
+  color: var(--color-active);
+}
+
+/* ========================================
+   GAME BOARD
+   ======================================== */
+.board-section {
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  justify-content: center;
+}
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 2px;
+  background: var(--color-border);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  max-width: 500px;
+  width: 100%;
+  aspect-ratio: 1;
 }
 
 .grid-cell {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: black;
+  background: var(--color-card-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  position: relative;
+  aspect-ratio: 1;
 }
 
-.snake {
-    background-color: red;
+.grid-cell.snake::after {
+  content: "🐍";
+  position: absolute;
+  font-size: 0.6rem;
+  bottom: 2px;
+  right: 2px;
 }
 
-.ladder {
-    background-color: green;
+.grid-cell.ladder::after {
+  content: "🪜";
+  position: absolute;
+  font-size: 0.6rem;
+  bottom: 2px;
+  right: 2px;
 }
 
+.grid-cell:nth-child(even) {
+  background: #252525;
+}
+
+/* ========================================
+   HISTORY LOG
+   ======================================== */
+.history-section {
+  margin-bottom: var(--spacing-lg);}
+
+.history-section h3 {
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.2rem;
+}
+
+.move-history {
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+}
+
+.move-history li {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin: var(--spacing-xs) 0;
+  border-left: 3px solid var(--color-primary);
+  background: rgba(255,255,255,0.05);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.9rem;
+}
+
+.move-history li::marker {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* ========================================
+   MODAL
+   ======================================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-md);
+}
+
+.modal.hidden {
+  display: none;}
+
+.modal-content {
+  background: var(--color-card-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  border: 2px solid var(--color-primary);
+}
+
+.modal-content h2 {
+  margin-bottom: var(--spacing-md);
+  font-size: 1.5rem;
+}
+
+.modal-content p {
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 @media (max-width: 600px) {
-  .grid-cell {
-    width: 30px;
-    height: 30px;
+  :root {
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
   }
-  #game-board {
-    grid-template-columns: repeat(10, 30px);
-    grid-template-rows: repeat(10, 30px);
+  
+  .game-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: 0.9rem;
+  }
+  
+  .game-board {
+    gap: 1px;
+    padding: 1px;
+  }
+  
+  .grid-cell {
+    font-size: 0.6rem;
+  }
+}
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }
 
-@media (min-width: 601px) and (max-width: 1024px) {
-  .grid-cell {
-    width: 40px;
-    height: 40px;
-  }
-  #game-board {
-    grid-template-columns: repeat(10, 40px);
-    grid-template-rows: repeat(10, 40px);
-  }
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-@media (min-width: 1025px) {
-  .grid-cell {
-    width: 50px;
-    height: 50px;
-  }
-  #game-board {
-    grid-template-columns: repeat(10, 50px);
-    grid-template-rows: repeat(10, 50px);
-  }
+/* Scrollbar styling */
+.move-history::-webkit-scrollbar {
+  width: 6px;
+}
+
+.move-history::-webkit-scrollbar-track {
+  background: var(--color-card-bg);
+  border-radius: 3px;
+}
+
+.move-history::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.move-history::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }
