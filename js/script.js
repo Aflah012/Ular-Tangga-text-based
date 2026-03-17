@@ -180,32 +180,29 @@ function hitungRekor() {
     }
 }
 
+const Ledder = {
+    5:26,
+    9:31,
+    28:47,
+    43:80,
+    73:91,
+    77:96
+}
+
+const Snake = {
+    39:1,
+    55:37,
+    68:50,
+    93:75,
+    99:83
+}
+
 function aturanSkor(s) {
-    if (s === 5) { //Ledder
-        return 26;
-    } else if (s === 9) {
-        return 31;
-    } else if (s === 28) {
-        return 47;
-    } else if (s === 43) {
-        return 80;
-    } else if (s === 73) {
-        return 91;
-    } else if (s === 77) {
-        return 96;
-    } else if (s === 39) { //Snake
-        return 1;
-    } else if (s === 55) {
-        return 37;
-    } else if (s === 68) {
-        return 50;
-    } else if (s === 93) {
-        return 75;
-    } else if (s === 99) {
-        return 83;
-    } else if (s === 100) { //Normal move
-        return 100;
-    } else if(s > 100) {
+    if (Ledder[s]) { //Ledder
+        return Ledder[s];
+    } else if (Snake[s]) { //Snake
+        return Snake[s];
+    } else if (s > 100) { //Normal move
         let i = s - 100;
         return 100 - i;
     } else {
@@ -318,17 +315,17 @@ function klikpemain(id, fungsi) {
     document.getElementById(id).addEventListener('click', fungsi);
 }
 
-function pemain(id, text, teks) {
-    if(id === 'p1'&& teks === 100 && text === A) {
-        document.getElementById(id).innerText = 'No.'+pr1+'\n'+text;
-    } else if(id === 'p2'&&teks === 100 && text === B) {
-        document.getElementById(id).innerText = 'No.'+pr2+'\n'+text;
-    } else if(id === 'p3'&&teks === 100 && text === C) {
-        document.getElementById(id).innerText = 'No.'+pr3+'\n'+text;
-    } else if(id === 'p4'&&teks === 100 && text === D) {
-        document.getElementById(id).innerText = 'No.'+pr4+'\n'+text;
+function pemain(id, name, teks) {
+    if(id === 'p1'&& teks === 100 && name === A) {
+        document.getElementById(id).innerText = 'No.'+pr1+'\n'+name;
+    } else if(id === 'p2'&&teks === 100 && name === B) {
+        document.getElementById(id).innerText = 'No.'+pr2+'\n'+name;
+    } else if(id === 'p3'&&teks === 100 && name === C) {
+        document.getElementById(id).innerText = 'No.'+pr3+'\n'+name;
+    } else if(id === 'p4'&&teks === 100 && name === D) {
+        document.getElementById(id).innerText = 'No.'+pr4+'\n'+name;
     } else {
-        document.getElementById(id).innerText = text+':\n'+teks;
+        document.getElementById(id).innerText = name+':\n'+teks;
     }
 }
 
@@ -353,17 +350,11 @@ function AI(am) {
 }
 
 function cekAI(am) {
-    if(am === 'A') {
+    if(am === 'A' || am === 'B' || am === 'C' || am === 'D') {
         return true;
-        } else if(am === 'B') {
-            return true;
-        } else if(am === 'C') {
-            return true;
-        } else if(am === 'D') {
-            return true;
-        } else {
-            return false;
-        }
+    } else {
+        return false;
+    }
 }
 
 klikpemain('cp1', beriNama);
