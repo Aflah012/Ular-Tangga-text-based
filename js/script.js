@@ -180,7 +180,7 @@ function hitungRekor() {
     }
 }
 
-const Ledder = {
+const Ladders = {
     5:26,
     9:31,
     28:47,
@@ -189,7 +189,7 @@ const Ledder = {
     77:96
 }
 
-const Snake = {
+const Snakes = {
     39:1,
     55:37,
     68:50,
@@ -198,10 +198,10 @@ const Snake = {
 }
 
 function aturanSkor(s) {
-    if (Ledder[s]) { //Ledder
-        return Ledder[s];
-    } else if (Snake[s]) { //Snake
-        return Snake[s];
+    if (Ladders[s]) { //Ledder
+        return Ladders[s];
+    } else if (Snakes[s]) { //Snake
+        return Snakes[s];
     } else if (s > 100) { //Normal move
         let i = s - 100;
         return 100 - i;
@@ -373,25 +373,13 @@ function createGameBoard() {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         cell.textContent = i;
-        if (isSnake(i)) {
+        if (Snakes[i]) {
             cell.classList.add('snake');
-        } else if (isLadder(i)) {
+        } else if (Ladders[i]) {
             cell.classList.add('ladder');
         }
         board.appendChild(cell);
     }
-}
-
-function isSnake(square) {
-    // Define snake positions (start square)
-    const snakes = [39, 55, 68, 93, 99];
-    return snakes.includes(square);
-}
-
-function isLadder(square) {
-    // Define ladder positions (start square)
-    const ladders = [5, 9, 28, 43, 73, 77];
-    return ladders.includes(square);
 }
 
 // Call createGameBoard() when the page loads
