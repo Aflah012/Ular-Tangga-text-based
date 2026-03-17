@@ -181,29 +181,29 @@ function hitungRekor() {
 }
 
 function aturanSkor(s) {
-    if (s === 5) {
+    if (s === 5) { //Ledder
         return 26;
     } else if (s === 9) {
         return 31;
     } else if (s === 28) {
         return 47;
-    } else if (s === 39) {
-        return 1;
     } else if (s === 43) {
         return 80;
-    } else if (s === 55) {
-        return 37;
-    } else if (s === 68) {
-        return 50;
     } else if (s === 73) {
         return 91;
     } else if (s === 77) {
         return 96;
+    } else if (s === 39) { //Snake
+        return 1;
+    } else if (s === 55) {
+        return 37;
+    } else if (s === 68) {
+        return 50;
     } else if (s === 93) {
         return 75;
     } else if (s === 99) {
         return 83;
-    } else if (s === 100) {
+    } else if (s === 100) { //Normal move
         return 100;
     } else if(s > 100) {
         let i = s - 100;
@@ -393,13 +393,13 @@ function createGameBoard() {
 
 function isSnake(square) {
     // Define snake positions (start square)
-    const snakes = [16, 47, 49, 56, 62, 64, 66, 87, 93, 95, 98];
+    const snakes = [39, 55, 68, 93, 99];
     return snakes.includes(square);
 }
 
 function isLadder(square) {
     // Define ladder positions (start square)
-    const ladders = [1, 4, 9, 21, 28, 36, 51, 71, 80];
+    const ladders = [5, 9, 28, 43, 73, 77];
     return ladders.includes(square);
 }
 
