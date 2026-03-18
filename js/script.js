@@ -10,9 +10,9 @@ let aturan = 0;
 let cek = 0;
 let batas = 0;
 let rekor = 0;
-let [p1, p2, p3, p4] = [0, 0, 0, 0];
-let [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
-let [A, B, C, D] = ["A", "B", "C", "D"];
+// let [p1, p2, p3, p4] = [0, 0, 0, 0];
+// let [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
+// let [A, B, C, D] = ["A", "B", "C", "D"];
 let h = GAME_CONFIG.Players.A.name;
 
 function acak() {
@@ -21,8 +21,9 @@ function acak() {
     let dice = Math.floor(Math.random() * 6) + 1;
     cek = dice;
     hitungSkor(h, dice);
-    // const player = Object.values(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === h);
-//     setLogs(player.name, dice, player.score);
+    const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === h);
+    const player = GAME_CONFIG.Players[playerKey];
+    setLogs(player.name, dice, player.score);
     // hitungRekor();
     let playerr = nextTurn();
     ke++;
@@ -33,6 +34,19 @@ function acak() {
 }
 document.getElementById("acak").addEventListener("click", acak);
 document.getElementById("reset").addEventListener("click", reset);
+
+function setPlayers() {
+    const uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
+    const player = GAME_CONFIG.Players;
+    player['A'].status = true;
+    player['B'].status = true;
+    if(uiNumPlayer === "3p" || uiNumPlayer === '4p') {
+        player['C'].status = true;
+        if(uiNumPlayer === "4p") {
+            player['D'].status = true;
+        }
+    }
+}
 
 function beriNama() {
     Object.values(GAME_CONFIG.Players).forEach(p => {
@@ -155,67 +169,14 @@ function riwayat(player, a) {
 
 function hitungSkor(name, s) {
     Object.values(GAME_CONFIG.Players).forEach(p => {
-        if (name === p.name) {
+        if (name === p.name && p.score < 100) {
             let i = aturanSkor((p.score += s));
             p.score = i;
             aturan = p.score;
             updatePlayerState();
         }
     });
-    /* if (p === A) {
-        skor = p1;
-        p1 += s;
-        let l = aturanSkor(p1);
-        p1 = l;
-        aturan = p1;
-        updatePlayerState('p1', A, p1);
-        return p1;
-    } else if (p === B) {
-        skor = p2;
-        p2 += s;
-        let l = aturanSkor(p2);
-        p2 = l;
-        aturan = p2;
-        updatePlayerState('p2', B, p2);
-        return p2;
-    } else if (p === C) {
-        skor = p3;
-        p3 += s;
-        let l = aturanSkor(p3);
-        p3 = l;
-        aturan = p3;
-        updatePlayerState('p3', C, p3);
-        return p3;
-    } else if (p === D) {
-        skor = p4;
-        p4 += s;
-        let l = aturanSkor(p4);
-        p4 = l;
-        aturan = p4;
-        updatePlayerState('p4', D, p4);
-        return p4;
-    } */
 }
-
-/* function hitungRekor() {
-    if (p1 === 100 && h === A) {
-        rekor++;
-        pr1 = rekor;
-        updatePlayerState('p1', A, p1);
-    } else if (p2 === 100 && h === B) {
-        rekor++;
-        pr2 = rekor;
-        updatePlayerState('p2', B, p2);
-    } else if (p3 === 100 && h === C) {
-        rekor++;
-        pr3 = rekor;
-        updatePlayerState('p3', C, p3);
-    } else if (p4 === 100 && h === D) {
-        rekor++;
-        pr4 = rekor;
-        updatePlayerState('p4', D, p4);
-    }
-} */
 
 function aturanSkor(s) {
     if (GAME_CONFIG.Ladders[s]) {
@@ -289,75 +250,6 @@ function nextTurn(dice) {
     }
 }
 
-/* function nextTurn() {
-    resetSelectedPlayerDisplay();
-    let mode = document.querySelector('input[name="mode"]:checked').value;
-    batas++;
-    if (h === A) {
-        if (cek === 6 && batas < 3 && p1 < 100) {
-            h = A;
-        } else if (p2 < 100) {
-            h = B;
-            batas = 0;
-        } else if (p3 < 100 && mode === '3p' || mode === '4p' && p3 < 100) {
-            h = C;
-            batas = 0;
-        } else if (p4 < 100 && mode === '4p') {
-            h = D;
-            batas = 0;
-        }
-        document.getElementById('cp1').style.backgroundColor = select;
-        return A;
-    } else if (h === B) {
-        if (cek === 6 && batas < 3 && p2 < 100) {
-            h = B;
-        } else if (mode === '3p' && p3 < 100 || mode === '4p' && p3 < 100) {
-            h = C;
-            batas = 0;
-        } else if (mode === '4p' && p4 < 100) {
-            h = D;
-            batas = 0;
-        } else if (p1 < 100) {
-            h = A;
-            batas = 0;
-        }
-        document.getElementById('cp2').style.backgroundColor = select;
-        return B;
-    } else if (h === C) {
-        if (cek === 6 && batas < 3 && p3 < 100) {
-            h = C;
-        } else if (mode === '4p' && p4 < 100) {
-            h = D;
-            batas = 0;
-        } else if (p1 < 100) {
-            h = A;
-            batas = 0;
-        } else if (p2 < 100) {
-            h = B;
-            batas = 0;
-        }
-        document.getElementById('cp3').style.backgroundColor = select;
-        return C;
-    } else if (h === D) {
-        if (cek === 6 && batas < 3 && p4 < 100) {
-            h = D;
-        } else if (p1 < 100) {
-            h = A;
-            batas = 0;
-        } else if (p2 < 100) {
-            h = B;
-            batas = 0;
-        } else if (p3 < 100) {
-            h = C;
-            batas = 0;
-        }
-        document.getElementById('cp4').style.backgroundColor = select;
-        return D;
-    } else {
-        return 'selesai';
-    }
-} */
-
 function resetSelectedPlayerDisplay() {
     document.getElementById("cp1").style.background = "none";
     document.getElementById("cp2").style.background = "none";
@@ -376,7 +268,7 @@ function updatePlayerState() {
             p.record = rekor;
             document.getElementById(p.elementId.score).innerText =
                 "No." + p.record + "\n" + p.name;
-        } else {
+        } else if (p.score < 100) {
             document.getElementById(p.elementId.score).innerText =
                 p.name + ":\n" + p.score;
         }

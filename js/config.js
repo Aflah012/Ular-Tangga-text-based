@@ -1,7 +1,7 @@
 export const GAME_CONFIG = {
     Players: {
         A : {
-            id: 0,
+            status: false,
             name: 'A',
             score: 0,
             record: 0,
@@ -11,7 +11,7 @@ export const GAME_CONFIG = {
             }
         },
         B : {
-            id: 1,
+            status: false,
             name: 'B',
             score: 0,
             record: 0,
@@ -21,7 +21,7 @@ export const GAME_CONFIG = {
             }
         },
         C : {
-            id: 2,
+            status: false,
             name: 'C',
             score: 0,
             record: 0,
@@ -31,7 +31,7 @@ export const GAME_CONFIG = {
             }
         },
         D : {
-            id: 3,
+            status: false,
             name: 'D',
             score: 0,
             record: 0,
