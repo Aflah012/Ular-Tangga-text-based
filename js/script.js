@@ -14,9 +14,6 @@ let aturan = 0;
 let cek = 0;
 let batas = 0;
 let rekor = 0;
-// let [p1, p2, p3, p4] = [0, 0, 0, 0];
-// let [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
-// let [A, B, C, D] = ["A", "B", "C", "D"];
 let h = GAME_CONFIG.Players.A.name;
 
 function acak() {
@@ -101,7 +98,7 @@ function endGame() {
 function setLogs(playerName, dice, score, message = "") {
     const console = document.getElementById("p");
     const log = document.createElement("li");
-    const previusScore = (score - dice)
+    const previusScore = (score - dice);
     log.innerHTML = playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
     console.appendChild(log);
     console.scrollTop = console.scrollHeight;
@@ -201,19 +198,22 @@ function aturanSkor(s) {
         return s;
     }
 }
-
-function reset() {
+document.getElementById('reset').addEventListener("click", resetGame);
+function resetGame() {
     document.getElementById("acak").style.display = "block";
     document.getElementById("mode").style.display = "flex";
     ke = 0;
-    h = A;
+    h = GAME_CONFIG.Players.A.name;
     rekor = 0;
     GAME_CONFIG.game = false;
     if (GAME_CONFIG.interval) {
         clearInterval(GAME_CONFIG.interval);
     }
-    //     [p1, p2, p3, p4] = [0, 0, 0, 0];
-    //     [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        p.score = 0;
+        p.record = 0;
+        p.status = false;
+    })
     updatePlayerState();
     resetSelectedPlayerDisplay();
     p.innerText = "";
@@ -298,8 +298,7 @@ function AI(am) {
         if (isAI(am)) {
             tomacak.click();
         }
-    },
-        500);
+    },500);
 }
 
 function isAI(am) {
