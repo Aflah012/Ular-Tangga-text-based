@@ -1,5 +1,9 @@
-import { GAME_CONFIG } from "./config.js";
-import selanjutnya, { createGameBoard } from "./UI.js";
+import {
+    GAME_CONFIG
+} from "./config.js";
+import selanjutnya, {
+    createGameBoard
+} from "./UI.js";
 const uru = document.getElementById("uru");
 const select = "gray";
 
@@ -17,6 +21,7 @@ let h = GAME_CONFIG.Players.A.name;
 
 function acak() {
     GAME_CONFIG.game = true;
+    setTotalPlayers();
     document.getElementById("mode").style.display = "none";
     let dice = Math.floor(Math.random() * 6) + 1;
     cek = dice;
@@ -27,6 +32,7 @@ function acak() {
     // hitungRekor();
     let playerr = nextTurn();
     ke++;
+    endGame();
     // riwayat(playerr, dice);
     selanjutnya(h);
     AI(h);
@@ -35,15 +41,15 @@ function acak() {
 document.getElementById("acak").addEventListener("click", acak);
 document.getElementById("reset").addEventListener("click", reset);
 
-function setPlayers() {
+function setTotalPlayers() {
     const uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
     const player = GAME_CONFIG.Players;
-    player['A'].status = true;
-    player['B'].status = true;
-    if(uiNumPlayer === "3p" || uiNumPlayer === '4p') {
-        player['C'].status = true;
-        if(uiNumPlayer === "4p") {
-            player['D'].status = true;
+    player.A.status = true;
+    player.B.status = true;
+    if (uiNumPlayer === "3p" || uiNumPlayer === '4p') {
+        player.C.status = true;
+        if (uiNumPlayer === "4p") {
+            player.D.status = true;
         }
     }
 }
@@ -94,7 +100,7 @@ function endGame() {
 
 function setLogs(playerName, dice, score, message = "") {
     const console = document.getElementById("p");
-    const log = document.createElement("li"); 
+    const log = document.createElement("li");
     const previusScore = (score - dice)
     log.innerHTML = playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
     console.appendChild(log);
@@ -112,55 +118,55 @@ function riwayat(player, a) {
     if (sesskor === aturan) {
         if (sesskor === 100) {
             li.innerHTML =
-                player +
-                ": +" +
-                a +
-                " == " +
-                skor +
-                " > " +
-                sesskor +
-                ' == <span class="green">Menang</span>';
+            player +
+            ": +" +
+            a +
+            " == " +
+            skor +
+            " > " +
+            sesskor +
+            ' == <span class="green">Menang</span>';
         } else {
             li.textContent =
-                player + ": +" + a + " == " + skor + " > " + sesskor;
+            player + ": +" + a + " == " + skor + " > " + sesskor;
         }
     } else {
         if (sesskor < aturan && aturan < 100 && sesskor < 100) {
             li.textContent =
-                player +
-                ": +" +
-                a +
-                " == " +
-                skor +
-                " > " +
-                sesskor +
-                " > " +
-                aturan +
-                " == Naik Tangga";
+            player +
+            ": +" +
+            a +
+            " == " +
+            skor +
+            " > " +
+            sesskor +
+            " > " +
+            aturan +
+            " == Naik Tangga";
         } else if (sesskor > aturan && aturan < 100 && sesskor < 100) {
             li.textContent =
-                player +
-                ": +" +
-                a +
-                " == " +
-                skor +
-                " > " +
-                sesskor +
-                " > " +
-                aturan +
-                " == Masuk mulut Ular";
+            player +
+            ": +" +
+            a +
+            " == " +
+            skor +
+            " > " +
+            sesskor +
+            " > " +
+            aturan +
+            " == Masuk mulut Ular";
         } else {
             li.textContent =
-                player +
-                ": +" +
-                a +
-                " == " +
-                skor +
-                " > " +
-                sesskor +
-                " > " +
-                aturan +
-                " == Gagal masuk";
+            player +
+            ": +" +
+            a +
+            " == " +
+            skor +
+            " > " +
+            sesskor +
+            " > " +
+            aturan +
+            " == Gagal masuk";
         }
     }
     p.appendChild(li);
@@ -172,7 +178,7 @@ function hitungSkor(name, s) {
         if (name === p.name && p.score < 100) {
             let i = aturanSkor((p.score += s));
             p.score = i;
-            aturan = p.score;
+            //aturan = p.score;
             updatePlayerState();
         }
     });
@@ -206,8 +212,8 @@ function reset() {
     if (GAME_CONFIG.interval) {
         clearInterval(GAME_CONFIG.interval);
     }
-    [p1, p2, p3, p4] = [0, 0, 0, 0];
-    [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
+    //     [p1, p2, p3, p4] = [0, 0, 0, 0];
+    //     [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
     updatePlayerState();
     resetSelectedPlayerDisplay();
     p.innerText = "";
@@ -236,7 +242,7 @@ function nextTurn(dice) {
             return currentPlayer.name;
         } else {
             const nextPlayer = GAME_CONFIG.Players[getNextChar(key)];
-            if (nextPlayer && nextPlayer.score < 100) {
+            if (nextPlayer && nextPlayer.score < 100 && nextPlayer.status === true) {
                 h = nextPlayer.name;
                 //console.log(GAME_CONFIG.Players[getNextChar(key)].name);
                 document.getElementById(nextPlayer.elementId.box).style.backgroundColor = select;
@@ -267,10 +273,10 @@ function updatePlayerState() {
             rekor++;
             p.record = rekor;
             document.getElementById(p.elementId.score).innerText =
-                "No." + p.record + "\n" + p.name;
+            "No." + p.record + "\n" + p.name;
         } else if (p.score < 100) {
             document.getElementById(p.elementId.score).innerText =
-                p.name + ":\n" + p.score;
+            p.name + ":\n" + p.score;
         }
     });
 }
@@ -292,7 +298,8 @@ function AI(am) {
         if (isAI(am)) {
             tomacak.click();
         }
-    }, 500);
+    },
+        500);
 }
 
 function isAI(am) {
