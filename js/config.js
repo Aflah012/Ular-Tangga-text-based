@@ -1,5 +1,6 @@
 export const GAME_CONFIG = {
     Snakes: {
+        8: 3,
         39: 1,
         55: 37,
         68: 50,
@@ -13,5 +14,7 @@ export const GAME_CONFIG = {
         43: 80,
         73: 91,
         77: 96
-    }
+    },
+    game: false,
+    interval: undefined
 }

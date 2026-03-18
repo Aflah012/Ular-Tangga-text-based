@@ -1,24 +1,22 @@
 import {GAME_CONFIG} from './config.js'
+import selanjutnya, {createGameBoard} from './UI.js'
 const uru = document.getElementById('uru');
 const select = 'gray';
 
 let ke = 0;
-let interval;
 let ii;
 let skor = 0;
 let aturan = 0;
 let cek = 0;
 let batas = 0;
 let rekor = 0;
-let klipkali = false;
-let game = false;
 let [p1, p2, p3, p4] = [0, 0, 0, 0];
 let [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
 let [A, B, C, D] = ['A', 'B', 'C', 'D'];
 let h = A;
 
 function acak() {
-    game = true;
+    GAME_CONFIG.game = true;
     document.getElementById('mode').style.display = 'none';
     let apa = Math.floor(Math.random() * 6) +1;
     cek = apa;
@@ -31,43 +29,11 @@ function acak() {
     AI(h);
     uru.textContent = 'Giliran ke: '+ke;
 }
-document.getElementById('acak').addEventListener("click", acak)
-function selanjutnya(aa) {
-    if (aa === A) {
-        klip('cp1');
-    } else if (aa === B) {
-        klip('cp2');
-    } else if (aa === C) {
-        klip('cp3');
-    } else if (aa === D) {
-        klip('cp4');
-    }
-}
-
-function klip(id) {
-    document.getElementById(id).style.backgroundColor = 'green';
-    klipkali = true;
-    if (interval) {
-        clearInterval(interval);
-    }
-    interval = setInterval(() => {
-        if (!klipkali) {
-            document.getElementById(id).style.backgroundColor = 'green';
-            klipkali = true;
-        } else {
-            document.getElementById(id).style.background = 'none';
-            klipkali = false;
-        }
-    },
-        500);
-    if (!game && interval) {
-        clearInterval(interval);
-        document.getElementById(id).style.background = 'none';
-    }
-}
+document.getElementById('acak').addEventListener("click", acak);
+document.getElementById('reset').addEventListener("click", reset)
 
 function beriNama() {
-    if (!game) {
+    if (!GAME_CONFIG.game) {
         if (this.id === 'cp1') {
             A = prompt('A:');
             h = A;
@@ -94,16 +60,16 @@ function riwayat(player, a) {
     if (mode === '2p' && p1 === 100 && p2 === 100) {
         pemilih();
         tomacak.style.display = 'none';
-        game = false;
+        GAME_CONFIG.game = false;
     } else if (mode === '3p' && p1 === 100 && p2 === 100 && p3 === 100) {
         pemilih();
         tomacak.style.display = 'none';
-        game = false;
+        GAME_CONFIG.game = false;
     } else if (mode === '4p' && p1 === 100 && p2 === 100 && p3 === 100 &&
         p4 === 100) {
         pemilih();
         tomacak.style.display = 'none';
-        game = false;
+        GAME_CONFIG.game = false;
     }
 
     if (sesskor === aturan) {
@@ -203,11 +169,10 @@ function reset() {
     ke = 0;
     h = A;
     rekor = 0;
-    game = false;
-    if (interval) {
-        clearInterval(interval);
+    GAME_CONFIG.game = false;
+    if (GAME_CONFIG.interval) {
+        clearInterval(GAME_CONFIG.interval);
     }
-    urutan = [];
     [p1,
         p2,
         p3,
@@ -330,26 +295,26 @@ function pemain(id, name, teks) {
 
 function AI(am) {
     const tomacak = document.getElementById('acak');
-    if (!game && ii) {
+    if (!GAME_CONFIG.game && ii) {
         clearInterval(ii);
         return;
     } else if (ii) {
         clearInterval(ii);
     }
-    if (cekAI(am)) {
+    if (isAI(am)) {
         tomacak.style.display = 'none';
     } else {
         tomacak.style.display = 'block';
     }
     ii = setInterval(() => {
-        if (cekAI(am)) {
+        if (isAI(am)) {
             tomacak.click();
         }
     },
         500);
 }
 
-function cekAI(am) {
+function isAI(am) {
     if (am === 'A' || am === 'B' || am === 'C' || am === 'D') {
         return true;
     } else {
@@ -365,22 +330,6 @@ klikpemain('cp4', beriNama);
 pemain('p1', A, p1);
 pemain('p2', B, p2);
 pemain('p3', C, p3);
-
-function createGameBoard() {
-    const board = document.getElementById('game-board');
-    board.innerHTML = '';
-    for (let i = 1; i <= 100; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'grid-cell';
-        cell.textContent = i;
-        if (GAME_CONFIG.Snakes[i]) {
-            cell.classList.add('snake');
-        } else if (GAME_CONFIG.Ladders[i]) {
-            cell.classList.add('ladder');
-        }
-        board.appendChild(cell);
-    }
-}
 
 // Call createGameBoard() when the page loads
 document.addEventListener('DOMContentLoaded', createGameBoard);
