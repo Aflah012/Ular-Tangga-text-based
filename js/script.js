@@ -1,5 +1,5 @@
-import {GAME_CONFIG} from './config.js'
-import selanjutnya, {createGameBoard} from './UI.js'
+import {GAME_CONFIG} from './config.js';
+import selanjutnya, {createGameBoard} from './UI.js';
 const uru = document.getElementById('uru');
 const select = 'gray';
 
@@ -21,7 +21,7 @@ function acak() {
     let apa = Math.floor(Math.random() * 6) +1;
     cek = apa;
     hitungSkor(h, apa);
-    hitungRekor();
+    // hitungRekor();
     let playerr = player();
     ke++;
     riwayat(playerr, apa);
@@ -30,25 +30,15 @@ function acak() {
     uru.textContent = 'Giliran ke: '+ke;
 }
 document.getElementById('acak').addEventListener("click", acak);
-document.getElementById('reset').addEventListener("click", reset)
+document.getElementById('reset').addEventListener("click", reset);
 
 function beriNama() {
-    if (!GAME_CONFIG.game) {
-        if (this.id === 'cp1') {
-            A = prompt('A:');
-            h = A;
-            pemain('p1', A, p1);
-        } else if (this.id === 'cp2') {
-            B = prompt('B:');
-            pemain('p2', B, p2);
-        } else if (this.id === 'cp3') {
-            C = prompt('C:');
-            pemain('p3', C, p3);
-        } else if (this.id === 'cp4') {
-            D = prompt('D:');
-            pemain('p4', D, p4);
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        if(this.id === p.elementId.box) {
+            p.name = prompt(`Silahkan berinama Pemain ${p.name}`);
+            updatePlayerState(p.elementId.score, p.name, p.score);
         }
-    }
+    });
 }
 
 function riwayat(player, a) {
@@ -58,16 +48,16 @@ function riwayat(player, a) {
     const li = document.createElement('li');
     let sesskor = skor + a;
     if (mode === '2p' && p1 === 100 && p2 === 100) {
-        pemilih();
+        resetSelectedPlayerDisplay();
         tomacak.style.display = 'none';
         GAME_CONFIG.game = false;
     } else if (mode === '3p' && p1 === 100 && p2 === 100 && p3 === 100) {
-        pemilih();
+        resetSelectedPlayerDisplay();
         tomacak.style.display = 'none';
         GAME_CONFIG.game = false;
     } else if (mode === '4p' && p1 === 100 && p2 === 100 && p3 === 100 &&
         p4 === 100) {
-        pemilih();
+        resetSelectedPlayerDisplay();
         tomacak.style.display = 'none';
         GAME_CONFIG.game = false;
     }
@@ -91,14 +81,22 @@ function riwayat(player, a) {
     p.scrollTop = p.scrollHeight;
 }
 
-function hitungSkor(p, s) {
-    if (p === A) {
+function hitungSkor(name, s) {
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        if(name === p.name) {
+            let i = aturanSkor(p.score += s);
+            p.score = i;
+            aturan = p.score;
+            updatePlayerState(p.elementId.score, p.name, p.score);
+        }
+    });
+    /* if (p === A) {
         skor = p1;
         p1 += s;
         let l = aturanSkor(p1);
         p1 = l;
         aturan = p1;
-        pemain('p1', A, p1);
+        updatePlayerState('p1', A, p1);
         return p1;
     } else if (p === B) {
         skor = p2;
@@ -106,7 +104,7 @@ function hitungSkor(p, s) {
         let l = aturanSkor(p2);
         p2 = l;
         aturan = p2;
-        pemain('p2', B, p2);
+        updatePlayerState('p2', B, p2);
         return p2;
     } else if (p === C) {
         skor = p3;
@@ -114,7 +112,7 @@ function hitungSkor(p, s) {
         let l = aturanSkor(p3);
         p3 = l;
         aturan = p3;
-        pemain('p3', C, p3);
+        updatePlayerState('p3', C, p3);
         return p3;
     } else if (p === D) {
         skor = p4;
@@ -122,30 +120,30 @@ function hitungSkor(p, s) {
         let l = aturanSkor(p4);
         p4 = l;
         aturan = p4;
-        pemain('p4', D, p4);
+        updatePlayerState('p4', D, p4);
         return p4;
-    }
+    } */
 }
 
-function hitungRekor() {
+/* function hitungRekor() {
     if (p1 === 100 && h === A) {
         rekor++;
         pr1 = rekor;
-        pemain('p1', A, p1);
+        updatePlayerState('p1', A, p1);
     } else if (p2 === 100 && h === B) {
         rekor++;
         pr2 = rekor;
-        pemain('p2', B, p2);
+        updatePlayerState('p2', B, p2);
     } else if (p3 === 100 && h === C) {
         rekor++;
         pr3 = rekor;
-        pemain('p3', C, p3);
+        updatePlayerState('p3', C, p3);
     } else if (p4 === 100 && h === D) {
         rekor++;
         pr4 = rekor;
-        pemain('p4', D, p4);
+        updatePlayerState('p4', D, p4);
     }
-}
+} */
 
 function aturanSkor(s) {
     if (GAME_CONFIG.Ladders[s]) {
@@ -187,11 +185,11 @@ function reset() {
         0,
         0,
         0];
-    pemain('p1', A, p1);
-    pemain('p2', B, p2);
-    pemain('p3', C, p3);
-    pemain('p4', D, p4);
-    pemilih();
+    updatePlayerState('p1', A, p1);
+    updatePlayerState('p2', B, p2);
+    updatePlayerState('p3', C, p3);
+    updatePlayerState('p4', D, p4);
+    resetSelectedPlayerDisplay();
     p.innerText = '';
     uru.textContent = 'Giliran ke: '+ke;
     if (ii) {
@@ -200,7 +198,7 @@ function reset() {
 }
 
 function player() {
-    pemilih();
+    resetSelectedPlayerDisplay();
     let mode = document.querySelector('input[name="mode"]:checked').value;
     batas++;
     if (h === A) {
@@ -268,7 +266,7 @@ function player() {
     }
 }
 
-function pemilih() {
+function resetSelectedPlayerDisplay() {
     document.getElementById('cp1').style.background = 'none';
     document.getElementById('cp2').style.background = 'none';
     document.getElementById('cp3').style.background = 'none';
@@ -279,18 +277,16 @@ function klikpemain(id, fungsi) {
     document.getElementById(id).addEventListener('click', fungsi);
 }
 
-function pemain(id, name, teks) {
-    if (id === 'p1' && teks === 100 && name === A) {
-        document.getElementById(id).innerText = 'No.'+pr1+'\n'+name;
-    } else if (id === 'p2' && teks === 100 && name === B) {
-        document.getElementById(id).innerText = 'No.'+pr2+'\n'+name;
-    } else if (id === 'p3' && teks === 100 && name === C) {
-        document.getElementById(id).innerText = 'No.'+pr3+'\n'+name;
-    } else if (id === 'p4' && teks === 100 && name === D) {
-        document.getElementById(id).innerText = 'No.'+pr4+'\n'+name;
-    } else {
-        document.getElementById(id).innerText = name+':\n'+teks;
-    }
+function updatePlayerState(id, name, score) {
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        if(p.score === 100) {
+            rekor++;
+            p.record = rekor;
+            document.getElementById(p.elementId.score).innerText = 'No.'+pr1+'\n'+p.name;
+        } else {
+            document.getElementById(p.elementId.score).innerText = p.name+':\n'+p.score;
+        }
+    })
 }
 
 function AI(am) {
@@ -327,9 +323,10 @@ klikpemain('cp2', beriNama);
 klikpemain('cp3', beriNama);
 klikpemain('cp4', beriNama);
 
-pemain('p1', A, p1);
-pemain('p2', B, p2);
-pemain('p3', C, p3);
+updatePlayerState('p1', A, p1);
+updatePlayerState('p2', B, p2);
+updatePlayerState('p3', C, p3);
+updatePlayerState('p4', D, p4);
 
 // Call createGameBoard() when the page loads
 document.addEventListener('DOMContentLoaded', createGameBoard);
