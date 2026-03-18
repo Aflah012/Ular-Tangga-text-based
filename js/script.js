@@ -1,3 +1,4 @@
+import {GAME_CONFIG} from './config.js'
 const uru = document.getElementById('uru');
 const select = 'gray';
 
@@ -30,7 +31,7 @@ function acak() {
     AI(h);
     uru.textContent = 'Giliran ke: '+ke;
 }
-
+document.getElementById('acak').addEventListener("click", acak)
 function selanjutnya(aa) {
     if (aa === A) {
         klip('cp1');
@@ -106,15 +107,15 @@ function riwayat(player, a) {
     }
 
     if (sesskor === aturan) {
-        if(sesskor === 100) {
+        if (sesskor === 100) {
             li.innerHTML = player+': +'+a+' == '+skor+' > '+sesskor+' == <span class="green">Menang</span>';
         } else {
             li.textContent = player+': +'+a+' == '+skor+' > '+sesskor;
         }
     } else {
-        if(sesskor < aturan && aturan < 100 && sesskor < 100) {
+        if (sesskor < aturan && aturan < 100 && sesskor < 100) {
             li.textContent = player+': +'+a+' == '+skor+' > '+sesskor+' > '+aturan+' == Naik Tangga';
-        } else if(sesskor > aturan && aturan < 100 && sesskor < 100){
+        } else if (sesskor > aturan && aturan < 100 && sesskor < 100) {
             li.textContent = player+': +'+a+' == '+skor+' > '+sesskor+' > '+aturan+' == Masuk mulut Ular';
         } else {
             li.textContent = player+': +'+a+' == '+skor+' > '+sesskor+' > '+aturan+' == Gagal masuk';
@@ -180,29 +181,15 @@ function hitungRekor() {
     }
 }
 
-const Ladders = {
-    5:26,
-    9:31,
-    28:47,
-    43:80,
-    73:91,
-    77:96
-}
-
-const Snakes = {
-    39:1,
-    55:37,
-    68:50,
-    93:75,
-    99:83
-}
-
 function aturanSkor(s) {
-    if (Ladders[s]) { //Ledder
-        return Ladders[s];
-    } else if (Snakes[s]) { //Snake
-        return Snakes[s];
-    } else if (s > 100) { //Normal move
+    if (GAME_CONFIG.Ladders[s]) {
+        //Ledder
+        return GAME_CONFIG.Ladders[s];
+    } else if (GAME_CONFIG.Snakes[s]) {
+        //Snake
+        return GAME_CONFIG.Snakes[s];
+    } else if (s > 100) {
+        //Normal move
         let i = s - 100;
         return 100 - i;
     } else {
@@ -221,8 +208,20 @@ function reset() {
         clearInterval(interval);
     }
     urutan = [];
-    [p1, p2, p3, p4] = [0, 0, 0, 0];
-    [pr1, pr2, pr3, pr4] = [0, 0, 0, 0];
+    [p1,
+        p2,
+        p3,
+        p4] = [0,
+        0,
+        0,
+        0];
+    [pr1,
+        pr2,
+        pr3,
+        pr4] = [0,
+        0,
+        0,
+        0];
     pemain('p1', A, p1);
     pemain('p2', B, p2);
     pemain('p3', C, p3);
@@ -230,7 +229,7 @@ function reset() {
     pemilih();
     p.innerText = '';
     uru.textContent = 'Giliran ke: '+ke;
-    if(ii) {
+    if (ii) {
         clearInterval(ii);
     }
 }
@@ -316,13 +315,13 @@ function klikpemain(id, fungsi) {
 }
 
 function pemain(id, name, teks) {
-    if(id === 'p1'&& teks === 100 && name === A) {
+    if (id === 'p1' && teks === 100 && name === A) {
         document.getElementById(id).innerText = 'No.'+pr1+'\n'+name;
-    } else if(id === 'p2'&&teks === 100 && name === B) {
+    } else if (id === 'p2' && teks === 100 && name === B) {
         document.getElementById(id).innerText = 'No.'+pr2+'\n'+name;
-    } else if(id === 'p3'&&teks === 100 && name === C) {
+    } else if (id === 'p3' && teks === 100 && name === C) {
         document.getElementById(id).innerText = 'No.'+pr3+'\n'+name;
-    } else if(id === 'p4'&&teks === 100 && name === D) {
+    } else if (id === 'p4' && teks === 100 && name === D) {
         document.getElementById(id).innerText = 'No.'+pr4+'\n'+name;
     } else {
         document.getElementById(id).innerText = name+':\n'+teks;
@@ -331,26 +330,27 @@ function pemain(id, name, teks) {
 
 function AI(am) {
     const tomacak = document.getElementById('acak');
-    if(!game && ii) {
+    if (!game && ii) {
         clearInterval(ii);
         return;
-    } else if(ii) {
+    } else if (ii) {
         clearInterval(ii);
     }
-    if(cekAI(am)) {
+    if (cekAI(am)) {
         tomacak.style.display = 'none';
     } else {
         tomacak.style.display = 'block';
     }
     ii = setInterval(() => {
-        if(cekAI(am)) {
+        if (cekAI(am)) {
             tomacak.click();
         }
-    }, 500);
+    },
+        500);
 }
 
 function cekAI(am) {
-    if(am === 'A' || am === 'B' || am === 'C' || am === 'D') {
+    if (am === 'A' || am === 'B' || am === 'C' || am === 'D') {
         return true;
     } else {
         return false;
@@ -373,9 +373,9 @@ function createGameBoard() {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         cell.textContent = i;
-        if (Snakes[i]) {
+        if (GAME_CONFIG.Snakes[i]) {
             cell.classList.add('snake');
-        } else if (Ladders[i]) {
+        } else if (GAME_CONFIG.Ladders[i]) {
             cell.classList.add('ladder');
         }
         board.appendChild(cell);
