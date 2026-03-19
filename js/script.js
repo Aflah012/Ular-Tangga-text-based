@@ -2,7 +2,7 @@ import {
     GAME_CONFIG
 } from "./config.js";
 import animateNextTurnPlayerCell, {
-    createGameBoard
+    createGameBoard, dom
 } from "./UI.js";
 const uru = document.getElementById("uru");
 
@@ -34,7 +34,7 @@ function acak() {
     let playerr = nextTurn(dice);
     ke++;
     //Identify if the game should be ended
-    endGame();
+    isGameEnded();
     //Display button dice for the next turn player
     animateNextTurnPlayerCell(h);
     //Call the AI that control player if current player controled by AI
@@ -67,48 +67,45 @@ function beriNama() {
     });
 }
 
-function endGame() {
-    const tomacak = document.getElementById("acak");
+function checkingPlayerScore() {
+    let playerHasWonCount = 0;
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        if(p.score === 100) {
+            playerHasWonCount++;
+        }
+    });
+    return playerHasWonCount;
+}
+
+function isGameEnded() {
     let uiNumPlayer = document.querySelector(
         'input[name="mode"]:checked'
     ).value;
-    if (
-        uiNumPlayer === "2p" &&
-        GAME_CONFIG.Players.A.score === 100 &&
-        GAME_CONFIG.Players.B.score === 100
-    ) {
-        resetSelectedPlayerDisplay();
-        tomacak.style.display = "none";
-        GAME_CONFIG.game = false;
-    } else if (
-        uiNumPlayer === "3p" &&
-        GAME_CONFIG.Players.A.score === 100 &&
-        GAME_CONFIG.Players.B.score === 100 &&
-        GAME_CONFIG.Players.C.score === 100
-    ) {
-        resetSelectedPlayerDisplay();
-        tomacak.style.display = "none";
-        GAME_CONFIG.game = false;
+    if (uiNumPlayer === "2p" && checkingPlayerScore() > 0) {
+        endGame();
+    } else if (uiNumPlayer === "3p" && checkingPlayerScore() > 1) {
+        endGame();
     } else if (
         uiNumPlayer === "4p" &&
-        GAME_CONFIG.Players.A.score === 100 &&
-        GAME_CONFIG.Players.B.score === 100 &&
-        GAME_CONFIG.Players.C.score === 100 &&
-        GAME_CONFIG.Players.D.score === 100
+        checkingPlayerScore() > 2
     ) {
-        resetSelectedPlayerDisplay();
-        tomacak.style.display = "none";
-        GAME_CONFIG.game = false;
+        endGame();
     }
 }
 
+function endGame() {
+    resetSelectedPlayerDisplay();
+    dom.diceBtn.style.display = "none";
+    GAME_CONFIG.game = false;
+    updatePlayerState();
+}
+
 function setLogs(playerName, dice, score, message = "") {
-    const console = document.getElementById("p");
     const log = document.createElement("li");
     const previusScore = (score - dice);
     log.innerHTML = ke + ' '+ playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
-    console.appendChild(log);
-    console.scrollTop = console.scrollHeight;
+    dom.console.appendChild(log);
+    dom.console.scrollTop = dom.console.scrollHeight;
 }
 
 function calculatePlayerScore(name, s) {
@@ -136,10 +133,10 @@ function calculateScore(s) {
         return s;
     }
 }
-document.getElementById('reset').addEventListener("click", resetGame);
+dom.resetBtn.addEventListener("click", resetGame);
 function resetGame() {
-    document.getElementById("acak").style.display = "block";
-    document.getElementById("mode").style.display = "flex";
+    dom.diceBtn.style.display = "block";
+    dom.selectedTotalPlayerBtn.style.display = "flex";
     ke = 0;
     h = GAME_CONFIG.Players.A.name;
     rekor = 0;
@@ -242,7 +239,6 @@ function updatePlayerState() {
 }
 
 function AI(am) {
-    const tomacak = document.getElementById("acak");
     if (!GAME_CONFIG.game && ii) {
         clearInterval(ii);
         return;
@@ -250,13 +246,13 @@ function AI(am) {
         clearInterval(ii);
     }
     if (isAI(am)) {
-        tomacak.style.display = "none";
+        dom.diceBtn.style.display = "none";
     } else {
-        tomacak.style.display = "block";
+        dom.diceBtn.style.display = "block";
     }
     ii = setInterval(() => {
         if (isAI(am)) {
-            tomacak.click();
+            dom.diceBtn.click();
         }
     },500);
 }

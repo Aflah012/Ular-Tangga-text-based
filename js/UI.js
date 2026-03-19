@@ -3,7 +3,10 @@ import {GAME_CONFIG} from './config.js';
 let klipkali = false;
 
 export const dom = {
-    
+    console: document.getElementById("p"),
+    resetBtn: document.getElementById('reset'),
+    diceBtn: document.getElementById("acak"),
+    selectedTotalPlayerBtn: document.getElementById("mode")
 };
 
 const displayBoxColor = (id, content) => {
