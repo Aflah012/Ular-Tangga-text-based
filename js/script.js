@@ -4,14 +4,13 @@ import {
 import animateNextTurnPlayerCell, {
     createGameBoard, dom
 } from "./UI.js";
-const uru = document.getElementById("uru");
 
-let ke = 0;
+let turnCount = 0;
 let ii;
 let consecutiveSixes = 0;
 let indexPlayerTurn = 1;
-let rekor = 0;
-let h = GAME_CONFIG.Players.A.name;
+let recordCount = 0;
+let currentPlayer = GAME_CONFIG.Players.A.name;
 
 function acak() {
     //Activate the game
@@ -19,27 +18,27 @@ function acak() {
     //set The total players
     setTotalPlayers();
     //Hide the total player selector
-    document.getElementById("mode").style.display = "none";
+    dom.modeColumn.style.display = "none";
     //roll the dice
     let dice = Math.floor(Math.random() * 6) + 1;
     //cek = dice;
     //Calculate the score player
-    calculatePlayerScore(h, dice);
+    calculatePlayerScore(currentPlayer, dice);
     //Display movement in the log
-    const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === h);
+    const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === currentPlayer);
     const player = GAME_CONFIG.Players[playerKey];
     setLogs(player.name, dice, player.score);
     //select player who move next turn
     let playerr = nextTurn(dice);
-    ke++;
+    turnCount++;
     //Identify if the game should be ended
     isGameEnded();
     //Display button dice for the next turn player
-    animateNextTurnPlayerCell(player.name);
+    animateNextTurnPlayerCell(currentPlayer);
     //Call the AI that control player if current player controled by AI
-    AI(h);
+    AI(currentPlayer);
     //Calculate the total of roll dice
-    uru.textContent = "Giliran ke: " + ke;
+    dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
 }
 document.getElementById("acak").addEventListener("click", acak);
 document.getElementById("reset").addEventListener("click", reset);
@@ -101,7 +100,7 @@ function isGameEnded() {
 function setLogs(playerName, dice, score, message = "") {
     const log = document.createElement("li");
     const previusScore = (score - dice);
-    log.innerHTML = ke + ' '+ playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
+    log.innerHTML = turnCount + ' '+ playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
     dom.console.appendChild(log);
     dom.console.scrollTop = dom.console.scrollHeight;
 }
@@ -134,10 +133,10 @@ function calculateScore(s) {
 dom.resetBtn.addEventListener("click", resetGame);
 function resetGame() {
     dom.diceBtn.style.display = "block";
-    dom.selectedTotalPlayerBtn.style.display = "flex";
-    ke = 0;
-    h = GAME_CONFIG.Players.A.name;
-    rekor = 0;
+    dom.modeColumn.style.display = "flex";
+    turnCount = 0;
+    currentPlayer = GAME_CONFIG.Players.A.name;
+    recordCount = 0;
     GAME_CONFIG.game = false;
     if (GAME_CONFIG.interval) {
         clearInterval(GAME_CONFIG.interval);
@@ -152,7 +151,7 @@ function resetGame() {
     updatePlayerState();
     resetSelectedPlayerDisplay();
     p.innerText = "";
-    uru.textContent = "Giliran ke: " + ke;
+    dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
     if (ii) {
         clearInterval(ii);
     }
@@ -169,7 +168,7 @@ function updateIndexPlayerTurn() {
             p.turn = 0;
         }
         textLog += ` {name: ${p.name} score: ${p.score} turn: ${p.turn}}`;
-    }); console.log(ke, indexPlayerTurn, textLog)
+    }); console.log(turnCount, indexPlayerTurn, textLog)
     if(indexPlayerTurn >= totalPlayer) {
         indexPlayerTurn = 0;
     }
@@ -177,7 +176,7 @@ function updateIndexPlayerTurn() {
 }
 
 function selectPlayer(player) {
-    h = player.name;
+    currentPlayer = player.name;
     return player.name;
 }
 
@@ -187,7 +186,7 @@ function nextTurn(dice) {
     consecutiveSixes++;
     updateIndexPlayerTurn();
     const filterCurrentPlayer = Object.keys(GAME_CONFIG.Players).find(
-        key => GAME_CONFIG.Players[key].name === h
+        key => GAME_CONFIG.Players[key].name === currentPlayer
     );
     document.getElementById(GAME_CONFIG.Players[filterCurrentPlayer].elementId.box).style.backgroundColor = 'gray';
     if (filterCurrentPlayer) {
@@ -208,10 +207,9 @@ function nextTurn(dice) {
 }
 
 function resetSelectedPlayerDisplay() {
-    document.getElementById("cp1").style.background = "none";
-    document.getElementById("cp2").style.background = "none";
-    document.getElementById("cp3").style.background = "none";
-    document.getElementById("cp4").style.background = "none";
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        document.getElementById(p.elementId.box).style.background = "none";
+    });
 }
 
 function klikpemain(id, fungsi) {
@@ -221,8 +219,8 @@ function klikpemain(id, fungsi) {
 function updatePlayerState() {
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if (p.score === 100 && p.record === 0) {
-            rekor++;
-            p.record = rekor;
+            recordCount++;
+            p.record = recordCount;
             indexPlayerTurn = (p.turn - 1);
             document.getElementById(p.elementId.score).innerText =
             "No." + p.record + "\n" + p.name;

@@ -6,7 +6,8 @@ export const dom = {
     console: document.getElementById("p"),
     resetBtn: document.getElementById('reset'),
     diceBtn: document.getElementById("acak"),
-    selectedTotalPlayerBtn: document.getElementById("mode")
+    modeColumn: document.getElementById("mode"),
+    uiTurnCount: document.getElementById("uru")
 };
 
 const displayBoxColor = (id, content) => {
