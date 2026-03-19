@@ -5,6 +5,7 @@ export const GAME_CONFIG = {
             name: 'A',
             score: 0,
             record: 0,
+            turn: 0,
             elementId: {
                 score: 'p1',
                 box: 'cp1'
@@ -15,6 +16,7 @@ export const GAME_CONFIG = {
             name: 'B',
             score: 0,
             record: 0,
+            turn: 0,
             elementId: {
                 score: 'p2',
                 box: 'cp2'
@@ -25,6 +27,7 @@ export const GAME_CONFIG = {
             name: 'C',
             score: 0,
             record: 0,
+            turn: 0,
             elementId: {
                 score: 'p3',
                 box: 'cp3'
@@ -35,6 +38,7 @@ export const GAME_CONFIG = {
             name: 'D',
             score: 0,
             record: 0,
+            turn: 0,
             elementId: {
                 score: 'p4',
                 box: 'cp4'

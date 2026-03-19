@@ -11,28 +11,40 @@ let ke = 0;
 let ii;
 let skor = 0;
 let aturan = 0;
-let cek = 0;
-let batas = 0;
+//let cek = 0;
+let consecutiveSixes = 0;
+let globalPlayerTurn = 0;
 let rekor = 0;
 let h = GAME_CONFIG.Players.A.name;
 
 function acak() {
+    //Activate the game
     GAME_CONFIG.game = true;
+    //set The total players
     setTotalPlayers();
+    //Hide the total player selector
     document.getElementById("mode").style.display = "none";
+    //roll the dice
     let dice = Math.floor(Math.random() * 6) + 1;
-    cek = dice;
-    hitungSkor(h, dice);
+    //cek = dice;
+    //Calculate the score player
+    calculatePlayerScore(h, dice);
+    //Display movement in the log
     const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === h);
     const player = GAME_CONFIG.Players[playerKey];
     setLogs(player.name, dice, player.score);
     // hitungRekor();
-    let playerr = nextTurn();
+    //select player who move next turn
+    let playerr = nextTurn(dice);
     ke++;
+    //Identify if the game should be ended
     endGame();
     // riwayat(playerr, dice);
+    //Display button dice for the next turn player
     selanjutnya(h);
+    //Call the AI that control player if current player controled by AI
     AI(h);
+    //Calculate the total of roll dice
     uru.textContent = "Giliran ke: " + ke;
 }
 document.getElementById("acak").addEventListener("click", acak);
@@ -99,7 +111,7 @@ function setLogs(playerName, dice, score, message = "") {
     const console = document.getElementById("p");
     const log = document.createElement("li");
     const previusScore = (score - dice);
-    log.innerHTML = playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
+    log.innerHTML = ke + ' '+ playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
     console.appendChild(log);
     console.scrollTop = console.scrollHeight;
 }
@@ -170,7 +182,7 @@ function riwayat(player, a) {
     p.scrollTop = p.scrollHeight;
 }
 
-function hitungSkor(name, s) {
+function calculatePlayerScore(name, s) {
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if (name === p.name && p.score < 100) {
             let i = aturanSkor((p.score += s));
@@ -213,6 +225,7 @@ function resetGame() {
         p.score = 0;
         p.record = 0;
         p.status = false;
+        p.turn = 0;
     })
     updatePlayerState();
     resetSelectedPlayerDisplay();
@@ -228,29 +241,50 @@ function getNextChar(char) {
     return String.fromCharCode(character.charCodeAt(0) + 1);
 }
 
+function updateGlobalPlayerTurn() {
+    let totalPlayer = 0;
+    let totalTurn = 0;
+    Object.values(GAME_CONFIG.Players).forEach(p => {
+        if(p.status === true && p.score < 100) {
+            totalPlayer++;
+            totalTurn += p.turn;
+        }
+    });
+    globalPlayerTurn = totalTurn / totalPlayer;
+}
+
+function selectPlayer(player, saveTurn = true) {
+    h = player.name;
+    document.getElementById(player.elementId.box).style.backgroundColor = select;
+    if(saveTurn) {
+        player.turn++;
+    }
+    return player.name;
+}
+
 function nextTurn(dice) {
     resetSelectedPlayerDisplay();
-    batas++;
-    const key = Object.keys(GAME_CONFIG.Players).find(
+    updateGlobalPlayerTurn();
+    consecutiveSixes++;
+    const filterCurrentPlayer = Object.keys(GAME_CONFIG.Players).find(
         key => GAME_CONFIG.Players[key].name === h
     );
-    if (key) {
-        const currentPlayer = GAME_CONFIG.Players[key];
-        if (dice === 6 && currentPlayer.score < 100 && batas < 3) {
-            h = currentPlayer.name;
-            document.getElementById(currentPlayer.elementId.box).style.backgroundColor = select;
-            return currentPlayer.name;
+    if (filterCurrentPlayer) {
+        if (dice === 6 && GAME_CONFIG.Players[filterCurrentPlayer].score < 100 && consecutiveSixes < 3) {
+            return selectPlayer(GAME_CONFIG.Players[filterCurrentPlayer],false);
         } else {
-            const nextPlayer = GAME_CONFIG.Players[getNextChar(key)];
+            consecutiveSixes = 0;
+            const nextPlayer = GAME_CONFIG.Players[getNextChar(filterCurrentPlayer)];
             if (nextPlayer && nextPlayer.score < 100 && nextPlayer.status === true) {
-                h = nextPlayer.name;
-                //console.log(GAME_CONFIG.Players[getNextChar(key)].name);
-                document.getElementById(nextPlayer.elementId.box).style.backgroundColor = select;
-                return nextPlayer.name;
+                return selectPlayer(GAME_CONFIG.Players[getNextChar(filterCurrentPlayer)]);
             } else {
-                h = GAME_CONFIG.Players["A"].name;
-                document.getElementById(GAME_CONFIG.Players["A"].elementId.box).style.backgroundColor = select;
-                return GAME_CONFIG.Players["A"].name;
+                const filterPlayerTurn = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].status === true && GAME_CONFIG.Players[key].score < 100 && GAME_CONFIG.Players[key].turn < globalPlayerTurn);
+                const filterSameGlobalPlayerTurn = Object.keys(GAME_CONFIG.Players).find(item => GAME_CONFIG.Players[item].status === true && GAME_CONFIG.Players[item].score < 100 && GAME_CONFIG.Players[item].turn === globalPlayerTurn && GAME_CONFIG.Players[item].name !== h);
+                if(filterPlayerTurn) {
+                    return selectPlayer(GAME_CONFIG.Players[filterPlayerTurn]);
+                } else if(Number.isInteger(globalPlayerTurn) && filterSameGlobalPlayerTurn) {
+                    return selectPlayer(GAME_CONFIG.Players[filterSameGlobalPlayerTurn]);
+                }
             }
         }
     }
