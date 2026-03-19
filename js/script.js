@@ -36,7 +36,7 @@ function acak() {
     //Identify if the game should be ended
     isGameEnded();
     //Display button dice for the next turn player
-    animateNextTurnPlayerCell(h);
+    animateNextTurnPlayerCell(player.name);
     //Call the AI that control player if current player controled by AI
     AI(h);
     //Calculate the total of roll dice
@@ -77,27 +77,26 @@ function checkingPlayerScore() {
     return playerHasWonCount;
 }
 
-function isGameEnded() {
-    let uiNumPlayer = document.querySelector(
-        'input[name="mode"]:checked'
-    ).value;
-    if (uiNumPlayer === "2p" && checkingPlayerScore() > 0) {
-        endGame();
-    } else if (uiNumPlayer === "3p" && checkingPlayerScore() > 1) {
-        endGame();
-    } else if (
-        uiNumPlayer === "4p" &&
-        checkingPlayerScore() > 2
-    ) {
-        endGame();
-    }
-}
-
 function endGame() {
     resetSelectedPlayerDisplay();
     dom.diceBtn.style.display = "none";
     GAME_CONFIG.game = false;
     updatePlayerState();
+}
+
+function isGameEnded() {
+    let uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
+    if (uiNumPlayer === "2p" && checkingPlayerScore() > 1) {
+        endGame();
+        return true;
+    } else if (uiNumPlayer === "3p" && checkingPlayerScore() > 2) {
+        endGame();
+        return true;
+    } else if (uiNumPlayer === "4p" && checkingPlayerScore() > 3) {
+        endGame();
+        return true;
+    }
+    return false;
 }
 
 function setLogs(playerName, dice, score, message = "") {
@@ -184,6 +183,7 @@ function selectPlayer(player, saveTurn = true) {
     return player.name;
 }
 
+//Menentukan Pemain yang mendapat jatah gerak di giliran berikutnya
 function nextTurn(dice) {
     resetSelectedPlayerDisplay();
     updateGlobalPlayerTurn();
@@ -193,11 +193,14 @@ function nextTurn(dice) {
     );
     document.getElementById(GAME_CONFIG.Players[filterCurrentPlayer].elementId.box).style.backgroundColor = 'gray';
     if (filterCurrentPlayer) {
+        //Jika Pemain saat ini mendapatkan angka enam, maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
         if (dice === 6 && GAME_CONFIG.Players[filterCurrentPlayer].score < 100 && consecutiveSixes < 3) {
             return selectPlayer(GAME_CONFIG.Players[filterCurrentPlayer],false);
         } else {
             consecutiveSixes = 0;
             const nextPlayer = GAME_CONFIG.Players[getNextChar(filterCurrentPlayer)];
+            //Jika Pemain yang tercatat pada data setelah pemain yang bergerak mengikuti permainan dan masih belum menang
+            //Maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
             if (nextPlayer && nextPlayer.score < 100 && nextPlayer.status === true) {
                 return selectPlayer(GAME_CONFIG.Players[getNextChar(filterCurrentPlayer)]);
             } else {
