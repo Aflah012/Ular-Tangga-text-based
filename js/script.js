@@ -9,7 +9,7 @@ const uru = document.getElementById("uru");
 let ke = 0;
 let ii;
 let consecutiveSixes = 0;
-let globalPlayerTurn = 0;
+let indexPlayerTurn = 1;
 let rekor = 0;
 let h = GAME_CONFIG.Players.A.name;
 
@@ -29,7 +29,6 @@ function acak() {
     const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === h);
     const player = GAME_CONFIG.Players[playerKey];
     setLogs(player.name, dice, player.score);
-    // hitungRekor();
     //select player who move next turn
     let playerr = nextTurn(dice);
     ke++;
@@ -143,6 +142,7 @@ function resetGame() {
     if (GAME_CONFIG.interval) {
         clearInterval(GAME_CONFIG.interval);
     }
+    indexPlayerTurn = 1;
     Object.values(GAME_CONFIG.Players).forEach(p => {
         p.score = 0;
         p.record = 0;
@@ -158,36 +158,34 @@ function resetGame() {
     }
 }
 
-function getNextChar(char) {
-    const character = `${char}`;
-    return String.fromCharCode(character.charCodeAt(0) + 1);
-}
-
-function updateGlobalPlayerTurn() {
+function updateIndexPlayerTurn() {
     let totalPlayer = 0;
-    let totalTurn = 0;
+    let textLog = "";
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if(p.status === true && p.score < 100) {
             totalPlayer++;
-            totalTurn += p.turn;
+            p.turn = totalPlayer;
+        } else {
+            p.turn = 0;
         }
-    });
-    globalPlayerTurn = totalTurn / totalPlayer;
+        textLog += ` {name: ${p.name} score: ${p.score} turn: ${p.turn}}`;
+    }); console.log(ke, indexPlayerTurn, textLog)
+    if(indexPlayerTurn >= totalPlayer) {
+        indexPlayerTurn = 0;
+    }
+    indexPlayerTurn++
 }
 
-function selectPlayer(player, saveTurn = true) {
+function selectPlayer(player) {
     h = player.name;
-    if(saveTurn) {
-        player.turn++;
-    }
     return player.name;
 }
 
 //Menentukan Pemain yang mendapat jatah gerak di giliran berikutnya
 function nextTurn(dice) {
     resetSelectedPlayerDisplay();
-    updateGlobalPlayerTurn();
     consecutiveSixes++;
+    updateIndexPlayerTurn();
     const filterCurrentPlayer = Object.keys(GAME_CONFIG.Players).find(
         key => GAME_CONFIG.Players[key].name === h
     );
@@ -195,22 +193,15 @@ function nextTurn(dice) {
     if (filterCurrentPlayer) {
         //Jika Pemain saat ini mendapatkan angka enam, maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
         if (dice === 6 && GAME_CONFIG.Players[filterCurrentPlayer].score < 100 && consecutiveSixes < 3) {
+            indexPlayerTurn = GAME_CONFIG.Players[filterCurrentPlayer].turn;
             return selectPlayer(GAME_CONFIG.Players[filterCurrentPlayer],false);
         } else {
             consecutiveSixes = 0;
-            const nextPlayer = GAME_CONFIG.Players[getNextChar(filterCurrentPlayer)];
+            const nextPlayer = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].turn === indexPlayerTurn);
             //Jika Pemain yang tercatat pada data setelah pemain yang bergerak mengikuti permainan dan masih belum menang
             //Maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
-            if (nextPlayer && nextPlayer.score < 100 && nextPlayer.status === true) {
-                return selectPlayer(GAME_CONFIG.Players[getNextChar(filterCurrentPlayer)]);
-            } else {
-                const filterPlayerTurn = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].status === true && GAME_CONFIG.Players[key].score < 100 && GAME_CONFIG.Players[key].turn < globalPlayerTurn);
-                const filterSameGlobalPlayerTurn = Object.keys(GAME_CONFIG.Players).find(item => GAME_CONFIG.Players[item].status === true && GAME_CONFIG.Players[item].score < 100 && GAME_CONFIG.Players[item].turn === globalPlayerTurn && GAME_CONFIG.Players[item].name !== h);
-                if(filterPlayerTurn) {
-                    return selectPlayer(GAME_CONFIG.Players[filterPlayerTurn]);
-                } else if(Number.isInteger(globalPlayerTurn) && filterSameGlobalPlayerTurn) {
-                    return selectPlayer(GAME_CONFIG.Players[filterSameGlobalPlayerTurn]);
-                }
+            if (nextPlayer) {
+                return selectPlayer(GAME_CONFIG.Players[nextPlayer]);
             }
         }
     }
@@ -232,6 +223,7 @@ function updatePlayerState() {
         if (p.score === 100 && p.record === 0) {
             rekor++;
             p.record = rekor;
+            indexPlayerTurn = (p.turn - 1);
             document.getElementById(p.elementId.score).innerText =
             "No." + p.record + "\n" + p.name;
         } else if (p.score < 100) {
