@@ -1,11 +1,10 @@
 import {
     GAME_CONFIG
 } from "./config.js";
-import selanjutnya, {
+import animateNextTurnPlayerCell, {
     createGameBoard
 } from "./UI.js";
 const uru = document.getElementById("uru");
-const select = "gray";
 
 let ke = 0;
 let ii;
@@ -37,7 +36,7 @@ function acak() {
     //Identify if the game should be ended
     endGame();
     //Display button dice for the next turn player
-    selanjutnya(h);
+    animateNextTurnPlayerCell(h);
     //Call the AI that control player if current player controled by AI
     AI(h);
     //Calculate the total of roll dice
@@ -153,7 +152,7 @@ function resetGame() {
         p.record = 0;
         p.status = false;
         p.turn = 0;
-    })
+    });
     updatePlayerState();
     resetSelectedPlayerDisplay();
     p.innerText = "";
@@ -182,7 +181,6 @@ function updateGlobalPlayerTurn() {
 
 function selectPlayer(player, saveTurn = true) {
     h = player.name;
-    document.getElementById(player.elementId.box).style.backgroundColor = select;
     if(saveTurn) {
         player.turn++;
     }
@@ -196,6 +194,7 @@ function nextTurn(dice) {
     const filterCurrentPlayer = Object.keys(GAME_CONFIG.Players).find(
         key => GAME_CONFIG.Players[key].name === h
     );
+    document.getElementById(GAME_CONFIG.Players[filterCurrentPlayer].elementId.box).style.backgroundColor = 'gray';
     if (filterCurrentPlayer) {
         if (dice === 6 && GAME_CONFIG.Players[filterCurrentPlayer].score < 100 && consecutiveSixes < 3) {
             return selectPlayer(GAME_CONFIG.Players[filterCurrentPlayer],false);

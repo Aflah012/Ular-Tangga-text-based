@@ -2,36 +2,39 @@ import {GAME_CONFIG} from './config.js';
 
 let klipkali = false;
 
-function klip(id) {
-    document.getElementById(id).style.backgroundColor = 'green';
+export const dom = {
+    
+};
+
+const displayBoxColor = (id, content) => {
+    document.getElementById(id).style.backgroundColor = content;
+};
+
+function animateCell(id) {
+    displayBoxColor(id, "green");
     klipkali = true;
     if (GAME_CONFIG.interval) {
         clearInterval(GAME_CONFIG.interval);
     }
     GAME_CONFIG.interval = setInterval(() => {
         if (!klipkali) {
-            document.getElementById(id).style.backgroundColor = 'green';
+            displayBoxColor(id, "green");
             klipkali = true;
         } else {
-            document.getElementById(id).style.background = 'none';
+            displayBoxColor(id, "none");
             klipkali = false;
         }
     }, 500);
     if (!GAME_CONFIG.game && GAME_CONFIG.interval) {
         clearInterval(GAME_CONFIG.interval);
-        document.getElementById(id).style.background = 'none';
+        displayBoxColor(id, "none");
     }
 }
 
-export default function selanjutnya(player) {
-    if (player === 'A') {
-        klip('cp1');
-    } else if (player === 'B') {
-        klip('cp2');
-    } else if (player === 'C') {
-        klip('cp3');
-    } else if (player === 'D') {
-        klip('cp4');
+export default function animateNextTurnPlayerCell(player) {
+    const key = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === player);
+    if(key) {
+        animateCell(GAME_CONFIG.Players[key].elementId.box);
     }
 }
 
