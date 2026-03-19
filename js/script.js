@@ -9,9 +9,6 @@ const select = "gray";
 
 let ke = 0;
 let ii;
-let skor = 0;
-let aturan = 0;
-//let cek = 0;
 let consecutiveSixes = 0;
 let globalPlayerTurn = 0;
 let rekor = 0;
@@ -39,7 +36,6 @@ function acak() {
     ke++;
     //Identify if the game should be ended
     endGame();
-    // riwayat(playerr, dice);
     //Display button dice for the next turn player
     selanjutnya(h);
     //Call the AI that control player if current player controled by AI
@@ -116,95 +112,26 @@ function setLogs(playerName, dice, score, message = "") {
     console.scrollTop = console.scrollHeight;
 }
 
-function riwayat(player, a) {
-    //const tomacak = document.getElementById('acak');
-    //let mode = document.querySelector('input[name="mode"]:checked').value;
-    const p = document.getElementById("p");
-    const li = document.createElement("li");
-    let sesskor = skor + a;
-    endGame();
-
-    if (sesskor === aturan) {
-        if (sesskor === 100) {
-            li.innerHTML =
-            player +
-            ": +" +
-            a +
-            " == " +
-            skor +
-            " > " +
-            sesskor +
-            ' == <span class="green">Menang</span>';
-        } else {
-            li.textContent =
-            player + ": +" + a + " == " + skor + " > " + sesskor;
-        }
-    } else {
-        if (sesskor < aturan && aturan < 100 && sesskor < 100) {
-            li.textContent =
-            player +
-            ": +" +
-            a +
-            " == " +
-            skor +
-            " > " +
-            sesskor +
-            " > " +
-            aturan +
-            " == Naik Tangga";
-        } else if (sesskor > aturan && aturan < 100 && sesskor < 100) {
-            li.textContent =
-            player +
-            ": +" +
-            a +
-            " == " +
-            skor +
-            " > " +
-            sesskor +
-            " > " +
-            aturan +
-            " == Masuk mulut Ular";
-        } else {
-            li.textContent =
-            player +
-            ": +" +
-            a +
-            " == " +
-            skor +
-            " > " +
-            sesskor +
-            " > " +
-            aturan +
-            " == Gagal masuk";
-        }
-    }
-    p.appendChild(li);
-    p.scrollTop = p.scrollHeight;
-}
-
 function calculatePlayerScore(name, s) {
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if (name === p.name && p.score < 100) {
-            let i = aturanSkor((p.score += s));
+            const i = calculateScore((p.score += s));
             p.score = i;
-            //aturan = p.score;
             updatePlayerState();
         }
     });
 }
 
-function aturanSkor(s) {
+function calculateScore(s) {
     if (GAME_CONFIG.Ladders[s]) {
         //Ledder
         return GAME_CONFIG.Ladders[s];
     } else if (GAME_CONFIG.Snakes[s]) {
         //Snake
         return GAME_CONFIG.Snakes[s];
-    } else if (s === 100) {
-        return s;
     } else if (s > 100) {
         //Normal move
-        let i = s - 100;
+        const i = s - 100;
         return 100 - i;
     } else {
         return s;
