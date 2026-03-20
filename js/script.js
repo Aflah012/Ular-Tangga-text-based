@@ -9,21 +9,12 @@ let consecutiveSixes = 0;
 let indexPlayerTurn = 1;
 let recordCount = 0;
 let currentPlayerName = GAME_CONFIG.Players.A.name;
-
+const robot = new AI();
 function rollDice(isAI = true) {
-    //Start the game
-    if(!isAI) {
-        GAME_CONFIG.game = true;
-    }
-    //set The total players
-    setTotalPlayers();
-    //Hide the total player selector
-    dom.modeColumn.style.display = "none";
     //roll the dice
     let dice = Math.floor(Math.random() * 6) + 1;
     //Calculate the score player
     calculatePlayerScore(currentPlayerName, dice);
-    //Display movement in the log
     //select player who move next turn
     nextTurn(dice);
     turnCount++;
@@ -32,14 +23,25 @@ function rollDice(isAI = true) {
     //Display button dice for the next turn player
     animateNextTurnPlayerCell(currentPlayerName);
     //Call the AI that control player if current player controled by AI
-    const robot = new AI(currentPlayerName);
-    robot.move(rollDice);
-    
-    //Calculate the total of roll dice
+    robot.move(currentPlayerName, rollDice);
+    //Display the total of roll dice
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
 }
 
-dom.diceBtn.addEventListener("click", () => {rollDice(false)});
+function startGame() {
+    GAME_CONFIG.game = true;
+    setTotalPlayers();
+    dom.modeColumn.style.display = "none";
+    robot.move(currentPlayerName, rollDice);
+}
+
+dom.diceBtn.addEventListener("click", () => {
+    if(GAME_CONFIG.game) {
+        rollDice();
+    } else {
+        startGame();
+    }
+});
 dom.resetBtn.addEventListener("click", reset);
 
 function setTotalPlayers() {
@@ -95,24 +97,22 @@ function calculatePlayerScore(name, dice) {
             const calculatedScore = calculateScore((p.score += dice));
             p.score = calculatedScore;
             updatePlayerState();
+            //Display movement in the log
             setLogs(name, dice, uncalculatedScore, calculatedScore);
         }
     });
 }
 
-function calculateScore(s) {
-    if (GAME_CONFIG.Ladders[s]) {
-        //Ledder
-        return GAME_CONFIG.Ladders[s];
-    } else if (GAME_CONFIG.Snakes[s]) {
-        //Snake
-        return GAME_CONFIG.Snakes[s];
-    } else if (s > 100) {
-        //Normal move
-        const i = s - 100;
+function calculateScore(dice) {
+    if (GAME_CONFIG.Ladders[dice]) {
+        return GAME_CONFIG.Ladders[dice];
+    } else if (GAME_CONFIG.Snakes[dice]) {
+        return GAME_CONFIG.Snakes[dice];
+    } else if (dice > 100) {//Bounce back when the score is more than 100
+        const i = dice - 100;
         return 100 - i;
     } else {
-        return s;
+        return dice;
     }
 }
 dom.resetBtn.addEventListener("click", resetGame);
@@ -133,7 +133,7 @@ function resetGame() {
     });
     updatePlayerState();
     resetSelectedPlayerDisplay();
-    p.innerText = "";
+    dom.console.innerText = "";
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
 }
 
@@ -150,7 +150,7 @@ function updateIndexPlayerTurn() {
     if(indexPlayerTurn >= totalPlayer) {
         indexPlayerTurn = 0;
     }
-    indexPlayerTurn++
+    indexPlayerTurn++;
 }
 
 //Menentukan Pemain yang mendapat jatah gerak di giliran berikutnya

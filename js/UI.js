@@ -7,7 +7,8 @@ export const dom = {
     resetBtn: document.getElementById('reset'),
     diceBtn: document.getElementById("acak"),
     modeColumn: document.getElementById("mode"),
-    uiTurnCount: document.getElementById("uru")
+    uiTurnCount: document.getElementById("uru"),
+    board: document.getElementById('game-board')
 };
 
 const displayBoxColor = (id, content) => {
@@ -47,8 +48,7 @@ export function animateNextTurnPlayerCell(player) {
 }
 
 export function createGameBoard() {
-    const board = document.getElementById('game-board');
-    board.innerHTML = '';
+    dom.board.innerHTML = '';
     for (let i = 1; i <= 100; i++) {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
@@ -58,6 +58,6 @@ export function createGameBoard() {
         } else if (GAME_CONFIG.Ladders[i]) {
             cell.classList.add('ladder');
         }
-        board.appendChild(cell);
+        dom.board.appendChild(cell);
     }
 }
