@@ -63,16 +63,6 @@ function setPlayerName() {
     updatePlayerState();
 }
 
-function checkingPlayerScore() {
-    let playerHasWonCount = 0;
-    Object.values(GAME_CONFIG.Players).forEach(p => {
-        if(p.score === 100) {
-            playerHasWonCount++;
-        }
-    });
-    return playerHasWonCount;
-}
-
 function endGame() {
     resetSelectedPlayerDisplay();
     dom.diceBtn.style.display = "none";
@@ -82,11 +72,11 @@ function endGame() {
 
 function isGameEnded() {
     let uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
-    if (uiNumPlayer === "2p" && checkingPlayerScore() > 1) {
+    if (uiNumPlayer === "2p" && recordCount > 1) {
         endGame();
-    } else if (uiNumPlayer === "3p" && checkingPlayerScore() > 2) {
+    } else if (uiNumPlayer === "3p" && recordCount > 2) {
         endGame();
-    } else if (uiNumPlayer === "4p" && checkingPlayerScore() > 3) {
+    } else if (uiNumPlayer === "4p" && recordCount > 3) {
         endGame();
     }
 }
