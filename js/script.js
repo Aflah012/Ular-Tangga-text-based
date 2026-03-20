@@ -84,15 +84,11 @@ function isGameEnded() {
     let uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
     if (uiNumPlayer === "2p" && checkingPlayerScore() > 1) {
         endGame();
-        return true;
     } else if (uiNumPlayer === "3p" && checkingPlayerScore() > 2) {
         endGame();
-        return true;
     } else if (uiNumPlayer === "4p" && checkingPlayerScore() > 3) {
         endGame();
-        return true;
     }
-    return false;
 }
 
 function setLogs(playerName, dice, previousScore, score, message = "") {
@@ -153,7 +149,6 @@ function resetGame() {
 
 function updateIndexPlayerTurn() {
     let totalPlayer = 0;
-    let textLog = "";
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if(p.status === true && p.score < 100) {
             totalPlayer++;
@@ -161,8 +156,7 @@ function updateIndexPlayerTurn() {
         } else {
             p.turn = 0;
         }
-        textLog += ` {name: ${p.name} score: ${p.score} turn: ${p.turn}}`;
-    }); console.log(turnCount, indexPlayerTurn, textLog)
+    });
     if(indexPlayerTurn >= totalPlayer) {
         indexPlayerTurn = 0;
     }
