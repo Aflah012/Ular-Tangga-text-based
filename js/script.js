@@ -24,9 +24,6 @@ function rollDice(isAI = true) {
     //Calculate the score player
     calculatePlayerScore(currentPlayerName, dice);
     //Display movement in the log
-    const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === currentPlayerName);
-    const player = GAME_CONFIG.Players[playerKey];
-    setLogs(player.name, dice, player.score);
     //select player who move next turn
     nextTurn(dice);
     turnCount++;
@@ -58,13 +55,12 @@ function setTotalPlayers() {
     }
 }
 
-function beriNama() {
-    Object.values(GAME_CONFIG.Players).forEach(p => {
-        if (this.id === p.elementId.box) {
-            p.name = prompt(`Silahkan berinama Pemain ${p.name}`);
-            updatePlayerState();
-        }
-    });
+function setPlayerName() {
+    const selectedPlayer = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].elementId.box === this.id);
+    if(selectedPlayer) {
+        GAME_CONFIG.Players[selectedPlayer].name = prompt(`Text ${p.name}'s name!`);
+    }
+    updatePlayerState();
 }
 
 function checkingPlayerScore() {
@@ -99,20 +95,21 @@ function isGameEnded() {
     return false;
 }
 
-function setLogs(playerName, dice, score, message = "") {
+function setLogs(playerName, dice, previousScore, score, message = "") {
     const log = document.createElement("li");
-    const previusScore = (score - dice);
-    log.innerHTML = turnCount + ' '+ playerName + ": +" + dice + " === " + previusScore +"  → " + score +' ' + message;
+    log.innerHTML = turnCount + ' '+ playerName + ": +" + dice + " === " + previousScore +"  → " + score +' ' + message;
     dom.console.appendChild(log);
     dom.console.scrollTop = dom.console.scrollHeight;
 }
 
-function calculatePlayerScore(name, s) {
+function calculatePlayerScore(name, dice) {
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if (name === p.name && p.score < 100) {
-            const i = calculateScore((p.score += s));
-            p.score = i;
+            const uncalculatedScore = p.score;
+            const calculatedScore = calculateScore((p.score += dice));
+            p.score = calculatedScore;
             updatePlayerState();
+            setLogs(name, dice, uncalculatedScore, calculatedScore);
         }
     });
 }
@@ -204,7 +201,7 @@ function resetSelectedPlayerDisplay() {
     });
 }
 
-function klikpemain(id, fungsi) {
+function playerCellEL(id, fungsi) {
     document.getElementById(id).addEventListener("click", fungsi);
 }
 
@@ -220,13 +217,14 @@ function updatePlayerState() {
             document.getElementById(p.elementId.score).innerText =
             p.name + ":\n" + p.score;
         }
+        playerCellEL(p.elementId.box, setPlayerName)
     });
 }
 
-klikpemain("cp1", beriNama);
-klikpemain("cp2", beriNama);
-klikpemain("cp3", beriNama);
-klikpemain("cp4", beriNama);
+/* playerCellEL("cp1", setPlayerName);
+playerCellEL("cp2", setPlayerName);
+playerCellEL("cp3", setPlayerName);
+playerCellEL("cp4", setPlayerName); */
 
 updatePlayerState();
 
