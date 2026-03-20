@@ -4,13 +4,14 @@ import {
 import animateNextTurnPlayerCell, {
     createGameBoard, dom
 } from "./UI.js";
+import AI from "./AI.js";
 
 let turnCount = 0;
-let ii;
+let aiMovementInterval;
 let consecutiveSixes = 0;
 let indexPlayerTurn = 1;
 let recordCount = 0;
-let currentPlayer = GAME_CONFIG.Players.A.name;
+let currentPlayerName = GAME_CONFIG.Players.A.name;
 
 function acak() {
     //Activate the game
@@ -21,11 +22,10 @@ function acak() {
     dom.modeColumn.style.display = "none";
     //roll the dice
     let dice = Math.floor(Math.random() * 6) + 1;
-    //cek = dice;
     //Calculate the score player
-    calculatePlayerScore(currentPlayer, dice);
+    calculatePlayerScore(currentPlayerName, dice);
     //Display movement in the log
-    const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === currentPlayer);
+    const playerKey = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === currentPlayerName);
     const player = GAME_CONFIG.Players[playerKey];
     setLogs(player.name, dice, player.score);
     //select player who move next turn
@@ -34,9 +34,11 @@ function acak() {
     //Identify if the game should be ended
     isGameEnded();
     //Display button dice for the next turn player
-    animateNextTurnPlayerCell(currentPlayer);
+    animateNextTurnPlayerCell(currentPlayerName);
     //Call the AI that control player if current player controled by AI
-    AI(currentPlayer);
+    const robot = new AI(currentPlayerName);
+    robot.move();
+    
     //Calculate the total of roll dice
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
 }
@@ -135,7 +137,7 @@ function resetGame() {
     dom.diceBtn.style.display = "block";
     dom.modeColumn.style.display = "flex";
     turnCount = 0;
-    currentPlayer = GAME_CONFIG.Players.A.name;
+    currentPlayerName = GAME_CONFIG.Players.A.name;
     recordCount = 0;
     GAME_CONFIG.game = false;
     if (GAME_CONFIG.interval) {
@@ -152,8 +154,8 @@ function resetGame() {
     resetSelectedPlayerDisplay();
     p.innerText = "";
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
-    if (ii) {
-        clearInterval(ii);
+    if (aiMovementInterval) {
+        clearInterval(aiMovementInterval);
     }
 }
 
@@ -176,7 +178,7 @@ function updateIndexPlayerTurn() {
 }
 
 function selectPlayer(player) {
-    currentPlayer = player.name;
+    currentPlayerName = player.name;
     return player.name;
 }
 
@@ -186,7 +188,7 @@ function nextTurn(dice) {
     consecutiveSixes++;
     updateIndexPlayerTurn();
     const filterCurrentPlayer = Object.keys(GAME_CONFIG.Players).find(
-        key => GAME_CONFIG.Players[key].name === currentPlayer
+        key => GAME_CONFIG.Players[key].name === currentPlayerName
     );
     document.getElementById(GAME_CONFIG.Players[filterCurrentPlayer].elementId.box).style.backgroundColor = 'gray';
     if (filterCurrentPlayer) {
@@ -229,33 +231,6 @@ function updatePlayerState() {
             p.name + ":\n" + p.score;
         }
     });
-}
-
-function AI(am) {
-    if (!GAME_CONFIG.game && ii) {
-        clearInterval(ii);
-        return;
-    } else if (ii) {
-        clearInterval(ii);
-    }
-    if (isAI(am)) {
-        dom.diceBtn.style.display = "none";
-    } else {
-        dom.diceBtn.style.display = "block";
-    }
-    ii = setInterval(() => {
-        if (isAI(am)) {
-            dom.diceBtn.click();
-        }
-    },500);
-}
-
-function isAI(am) {
-    if (am === "A" || am === "B" || am === "C" || am === "D") {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 klikpemain("cp1", beriNama);
