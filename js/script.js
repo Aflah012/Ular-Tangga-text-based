@@ -1,9 +1,7 @@
 import {
     GAME_CONFIG
 } from "./config.js";
-import animateNextTurnPlayerCell, {
-    createGameBoard, dom, stopAnimation
-} from "./UI.js";
+import {animateNextTurnPlayerCell,createGameBoard, dom, stopAnimation} from "./UI.js";
 import AI from "./AI.js";
 
 let turnCount = 0;
@@ -142,9 +140,7 @@ function resetGame() {
     currentPlayerName = GAME_CONFIG.Players.A.name;
     recordCount = 0;
     GAME_CONFIG.game = false;
-    if (GAME_CONFIG.interval) {
-        clearInterval(GAME_CONFIG.interval);
-    }
+    stopAnimation();
     indexPlayerTurn = 1;
     Object.values(GAME_CONFIG.Players).forEach(p => {
         p.score = 0;
@@ -154,7 +150,6 @@ function resetGame() {
     });
     updatePlayerState();
     resetSelectedPlayerDisplay();
-    stopAnimation();
     p.innerText = "";
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
 }
@@ -205,7 +200,7 @@ function nextTurn(dice) {
 
 function resetSelectedPlayerDisplay() {
     Object.values(GAME_CONFIG.Players).forEach(p => {
-        document.getElementById(p.elementId.box).style.background = "none";
+        document.getElementById(p.elementId.box).style.backgroundColor = "transparent";
     });
 }
 

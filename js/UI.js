@@ -1,6 +1,5 @@
 import {GAME_CONFIG} from './config.js';
 
-let klipkali = false;
 let animationInterval;
 
 export const dom = {
@@ -23,26 +22,24 @@ export function stopAnimation() {
 
 function animateCell(id) {
     displayBoxColor(id, "green");
-    klipkali = true;
-    if (animationInterval) {
-        clearInterval(animationInterval);
-    }
+    let klipkali = true;
+    stopAnimation();
     animationInterval = setInterval(() => {
         if (!klipkali) {
             displayBoxColor(id, "green");
             klipkali = true;
         } else {
-            displayBoxColor(id, "none");
+            displayBoxColor(id, "transparent");
             klipkali = false;
         }
     }, 500);
     if (!GAME_CONFIG.game && animationInterval) {
         clearInterval(animationInterval);
-        displayBoxColor(id, "none");
+        displayBoxColor(id, "transparent");
     }
 }
 
-export default function animateNextTurnPlayerCell(player) {
+export function animateNextTurnPlayerCell(player) {
     const key = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === player);
     if(key) {
         animateCell(GAME_CONFIG.Players[key].elementId.box);
