@@ -1,6 +1,7 @@
 import {GAME_CONFIG} from './config.js';
 
 let klipkali = false;
+let animationInterval;
 
 export const dom = {
     console: document.getElementById("p"),
@@ -14,13 +15,19 @@ const displayBoxColor = (id, content) => {
     document.getElementById(id).style.backgroundColor = content;
 };
 
+export function stopAnimation() {
+    if(animationInterval) {
+        clearInterval(animationInterval);
+    }
+}
+
 function animateCell(id) {
     displayBoxColor(id, "green");
     klipkali = true;
-    if (GAME_CONFIG.interval) {
-        clearInterval(GAME_CONFIG.interval);
+    if (animationInterval) {
+        clearInterval(animationInterval);
     }
-    GAME_CONFIG.interval = setInterval(() => {
+    animationInterval = setInterval(() => {
         if (!klipkali) {
             displayBoxColor(id, "green");
             klipkali = true;
@@ -29,8 +36,8 @@ function animateCell(id) {
             klipkali = false;
         }
     }, 500);
-    if (!GAME_CONFIG.game && GAME_CONFIG.interval) {
-        clearInterval(GAME_CONFIG.interval);
+    if (!GAME_CONFIG.game && animationInterval) {
+        clearInterval(animationInterval);
         displayBoxColor(id, "none");
     }
 }

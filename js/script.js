@@ -2,20 +2,21 @@ import {
     GAME_CONFIG
 } from "./config.js";
 import animateNextTurnPlayerCell, {
-    createGameBoard, dom
+    createGameBoard, dom, stopAnimation
 } from "./UI.js";
 import AI from "./AI.js";
 
 let turnCount = 0;
-let aiMovementInterval;
 let consecutiveSixes = 0;
 let indexPlayerTurn = 1;
 let recordCount = 0;
 let currentPlayerName = GAME_CONFIG.Players.A.name;
 
-function acak() {
-    //Activate the game
-    GAME_CONFIG.game = true;
+function rollDice(isAI = true) {
+    //Start the game
+    if(!isAI) {
+        GAME_CONFIG.game = true;
+    }
     //set The total players
     setTotalPlayers();
     //Hide the total player selector
@@ -29,7 +30,7 @@ function acak() {
     const player = GAME_CONFIG.Players[playerKey];
     setLogs(player.name, dice, player.score);
     //select player who move next turn
-    let playerr = nextTurn(dice);
+    nextTurn(dice);
     turnCount++;
     //Identify if the game should be ended
     isGameEnded();
@@ -37,13 +38,14 @@ function acak() {
     animateNextTurnPlayerCell(currentPlayerName);
     //Call the AI that control player if current player controled by AI
     const robot = new AI(currentPlayerName);
-    robot.move();
+    robot.move(rollDice);
     
     //Calculate the total of roll dice
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
 }
-document.getElementById("acak").addEventListener("click", acak);
-document.getElementById("reset").addEventListener("click", reset);
+
+dom.diceBtn.addEventListener("click", () => {rollDice(false)});
+dom.resetBtn.addEventListener("click", reset);
 
 function setTotalPlayers() {
     const uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
@@ -152,11 +154,9 @@ function resetGame() {
     });
     updatePlayerState();
     resetSelectedPlayerDisplay();
+    stopAnimation();
     p.innerText = "";
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
-    if (aiMovementInterval) {
-        clearInterval(aiMovementInterval);
-    }
 }
 
 function updateIndexPlayerTurn() {
@@ -177,11 +177,6 @@ function updateIndexPlayerTurn() {
     indexPlayerTurn++
 }
 
-function selectPlayer(player) {
-    currentPlayerName = player.name;
-    return player.name;
-}
-
 //Menentukan Pemain yang mendapat jatah gerak di giliran berikutnya
 function nextTurn(dice) {
     resetSelectedPlayerDisplay();
@@ -195,14 +190,14 @@ function nextTurn(dice) {
         //Jika Pemain saat ini mendapatkan angka enam, maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
         if (dice === 6 && GAME_CONFIG.Players[filterCurrentPlayer].score < 100 && consecutiveSixes < 3) {
             indexPlayerTurn = GAME_CONFIG.Players[filterCurrentPlayer].turn;
-            return selectPlayer(GAME_CONFIG.Players[filterCurrentPlayer],false);
+            currentPlayerName = GAME_CONFIG.Players[filterCurrentPlayer].name;
         } else {
             consecutiveSixes = 0;
             const nextPlayer = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].turn === indexPlayerTurn);
             //Jika Pemain yang tercatat pada data setelah pemain yang bergerak mengikuti permainan dan masih belum menang
             //Maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
             if (nextPlayer) {
-                return selectPlayer(GAME_CONFIG.Players[nextPlayer]);
+                currentPlayerName = GAME_CONFIG.Players[nextPlayer].name;
             }
         }
     }
