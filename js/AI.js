@@ -5,14 +5,16 @@ export default class AI{
     constructor(){
         //this.playerName = playerName;
     }
-    move(playerName, func) {
+    move(func) {
+        setTimeout(() => {
+            func();
+        },500);
+    }
+    isAI(playerName) {
         if (playerName === "A" || playerName === "B" || playerName === "C" || playerName === "D") {
-            setTimeout(() => {
-                dom.diceBtn.style.display = "none";
-                func();
-            },500);
+            return true;
         } else {
-            dom.diceBtn.style.display = "block";
+            return false;
         }
     }
 }
