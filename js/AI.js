@@ -10,8 +10,9 @@ export default class AI{
             func();
         },500);
     }
+    //"A,B,C,D" is AI name
     isAI(playerName) {
-        if (playerName === "A" || playerName === "B" || playerName === "C" || playerName === "D") {
+        if (['A','B','C','D'].includes(playerName)) {
             return true;
         } else {
             return false;

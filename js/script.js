@@ -84,8 +84,6 @@ dom.diceBtn.addEventListener("click", () => {
 });
 dom.resetBtn.addEventListener("click", resetGame);
 
-dom.resetBtn.addEventListener("click", resetGame);
-
 updatePlayerDisplay();
 // Call createGameBoard() when the page loads
 document.addEventListener("DOMContentLoaded", createGameBoard);
