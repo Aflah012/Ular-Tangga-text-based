@@ -8,12 +8,19 @@ export const dom = {
     diceBtn: document.getElementById("acak"),
     modeColumn: document.getElementById("mode"),
     uiTurnCount: document.getElementById("uru"),
-    board: document.getElementById('game-board')
+    board: document.getElementById('game-board'),
+    numTotalPlayer: document.querySelector('input[name="mode"]:checked').value
 };
 
 const displayBoxColor = (id, content) => {
     document.getElementById(id).style.backgroundColor = content;
 };
+
+export function resetPlayerDisplay(players) {
+    Object.values(players).forEach(p => {
+        document.getElementById(p.elementId.box).style.backgroundColor = "transparent";
+    });
+}
 
 export function stopAnimation() {
     if(animationInterval) {
@@ -21,7 +28,7 @@ export function stopAnimation() {
     }
 }
 
-function animateCell(id) {
+export function animateCell(id, game) {
     displayBoxColor(id, "green");
     let klipkali = true;
     stopAnimation();
@@ -34,7 +41,7 @@ function animateCell(id) {
             klipkali = false;
         }
     }, 500);
-    if (!GAME_CONFIG.game && animationInterval) {
+    if (!game && animationInterval) {
         clearInterval(animationInterval);
         displayBoxColor(id, "transparent");
     }

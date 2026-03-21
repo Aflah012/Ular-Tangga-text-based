@@ -1,18 +1,25 @@
 import {
     GAME_CONFIG
 } from "./config.js";
-import {animateNextTurnPlayerCell,createGameBoard, dom, stopAnimation} from "./UI.js";
+import {animateNextTurnPlayerCell,createGameBoard, dom, stopAnimation, animateCell, resetPlayerDisplay} from "./UI.js";
 import AI from "./AI.js";
+import SnakeLadderGame from './Game.js';
 
 let turnCount = 0;
 let consecutiveSixes = 0;
 let indexPlayerTurn = 1;
 let recordCount = 0;
 let currentPlayerName = GAME_CONFIG.Players.A.name;
+let config = {
+    players: {...GAME_CONFIG.Players},
+    ladders: {...GAME_CONFIG.Ladders},
+    snakes: {...GAME_CONFIG.Snakes}
+};
 const robot = new AI();
-function rollDice(isAI = true) {
+const game = new SnakeLadderGame(config);
+/* function rollDice() {
     //roll the dice
-    let dice = Math.floor(Math.random() * 6) + 1;
+    const dice = Math.floor(Math.random() * 6) + 1;
     //Calculate the score player
     calculatePlayerScore(currentPlayerName, dice);
     //select player who move next turn
@@ -26,25 +33,40 @@ function rollDice(isAI = true) {
     robot.move(currentPlayerName, rollDice);
     //Display the total of roll dice
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
+} */
+
+function runningGame() {
+    const numTotalPlayer = document.querySelector('input[name="mode"]:checked').value;
+    if(game.getGameStatus()) {
+        resetPlayerDisplay(game.getPlayerStat());
+        game.rollDice(numTotalPlayer);
+        animateCell(game.getCurrentElIdCell(), game.getGameStatus());
+        updatePlayerDisplay();
+        displayLogs();
+        robot.move(game.getCurrentPlayerName(), runningGame);
+    }
 }
 
-function startGame() {
+/* function startGame() {
     GAME_CONFIG.game = true;
     setTotalPlayers();
     dom.modeColumn.style.display = "none";
     robot.move(currentPlayerName, rollDice);
-}
+} */
 
 dom.diceBtn.addEventListener("click", () => {
-    if(GAME_CONFIG.game) {
-        rollDice();
+    if(game.getGameStatus()) {
+        runningGame();
     } else {
-        startGame();
+        const numTotalPlayer = document.querySelector('input[name="mode"]:checked').value;
+        game.startGame(numTotalPlayer);
+        dom.modeColumn.style.display = "none";
+        robot.move(game.getCurrentPlayerName(), runningGame);
     }
 });
-dom.resetBtn.addEventListener("click", reset);
+dom.resetBtn.addEventListener("click", resetGame);
 
-function setTotalPlayers() {
+/* function setTotalPlayers() {
     const uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
     const player = GAME_CONFIG.Players;
     player.A.status = true;
@@ -56,24 +78,22 @@ function setTotalPlayers() {
         }
     }
 }
-
+*/
 function setPlayerName() {
-    const selectedPlayer = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].elementId.box === this.id);
-    if(selectedPlayer) {
-        GAME_CONFIG.Players[selectedPlayer].name = prompt(`Text ${p.name}'s name!`);
-    }
-    updatePlayerState();
+    const newName = prompt(`Text ${p.name}'s name!`);
+    game.setPlayerName(this.id, newName);
+    updatePlayerDisplay();
 }
-
+/*
 function endGame() {
-    resetSelectedPlayerDisplay();
+    resetPlayerDisplay();
     dom.diceBtn.style.display = "none";
     GAME_CONFIG.game = false;
     updatePlayerState();
 }
 
 function isGameEnded() {
-    let uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
+    const uiNumPlayer = document.querySelector('input[name="mode"]:checked').value;
     if (uiNumPlayer === "2p" && recordCount > 1) {
         endGame();
     } else if (uiNumPlayer === "3p" && recordCount > 2) {
@@ -81,9 +101,18 @@ function isGameEnded() {
     } else if (uiNumPlayer === "4p" && recordCount > 3) {
         endGame();
     }
+} */
+
+function displayLogs() {
+    const logs = game.getLogs();
+    const i = logs.length - 1;
+    const log = document.createElement("li");
+    log.innerHTML = logs[i].count + ' '+ logs[i].name + ": +" + logs[i].movement + " === " + logs[i].preScore +"  → " + logs[i].score ;//+' ' + message;
+    dom.console.appendChild(log);
+    dom.console.scrollTop = dom.console.scrollHeight;
 }
 
-function setLogs(playerName, dice, previousScore, score, message = "") {
+/* function setLogs(playerName, dice, previousScore, score, message = "") {
     const log = document.createElement("li");
     log.innerHTML = turnCount + ' '+ playerName + ": +" + dice + " === " + previousScore +"  → " + score +' ' + message;
     dom.console.appendChild(log);
@@ -114,9 +143,20 @@ function calculateScore(dice) {
     } else {
         return dice;
     }
-}
+} */
 dom.resetBtn.addEventListener("click", resetGame);
+
 function resetGame() {
+    dom.diceBtn.style.display = "block";
+    dom.modeColumn.style.display = "flex";
+    game.resetGame();
+    stopAnimation();
+    resetPlayerDisplay(game.getPlayerStat());
+    updatePlayerDisplay();
+    dom.console.innerText = "";
+}
+
+/* function resetGame() {
     dom.diceBtn.style.display = "block";
     dom.modeColumn.style.display = "flex";
     turnCount = 0;
@@ -132,12 +172,12 @@ function resetGame() {
         p.turn = 0;
     });
     updatePlayerState();
-    resetSelectedPlayerDisplay();
+    resetPlayerDisplay();
     dom.console.innerText = "";
     dom.uiTurnCount.textContent = "Giliran ke: " + turnCount;
-}
+} */
 
-function updateIndexPlayerTurn() {
+/* function updateIndexPlayerTurn() {
     let totalPlayer = 0;
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if(p.status === true && p.score < 100) {
@@ -155,7 +195,7 @@ function updateIndexPlayerTurn() {
 
 //Menentukan Pemain yang mendapat jatah gerak di giliran berikutnya
 function nextTurn(dice) {
-    resetSelectedPlayerDisplay();
+    resetPlayerDisplay();
     consecutiveSixes++;
     updateIndexPlayerTurn();
     const filterCurrentPlayer = Object.keys(GAME_CONFIG.Players).find(
@@ -177,19 +217,32 @@ function nextTurn(dice) {
             }
         }
     }
-}
+} 
 
-function resetSelectedPlayerDisplay() {
+function resetPlayerDisplay() {
     Object.values(GAME_CONFIG.Players).forEach(p => {
         document.getElementById(p.elementId.box).style.backgroundColor = "transparent";
     });
 }
-
+*/
 function playerCellEL(id, fungsi) {
     document.getElementById(id).addEventListener("click", fungsi);
 }
 
-function updatePlayerState() {
+function updatePlayerDisplay() {
+    Object.values(game.getPlayerStat()).forEach(p => {
+        if (p.score === 100 && p.record > 0) {
+            document.getElementById(p.elementId.score).innerText =
+            "No." + p.record + "\n" + p.name;
+        } else if (p.score < 100) {
+            document.getElementById(p.elementId.score).innerText =
+            p.name + ":\n" + p.score;
+        }
+        playerCellEL(p.elementId.box, setPlayerName);
+    });
+}
+
+/* function updatePlayerState() {
     Object.values(GAME_CONFIG.Players).forEach(p => {
         if (p.score === 100 && p.record === 0) {
             recordCount++;
@@ -203,14 +256,14 @@ function updatePlayerState() {
         }
         playerCellEL(p.elementId.box, setPlayerName)
     });
-}
+} */
 
 /* playerCellEL("cp1", setPlayerName);
 playerCellEL("cp2", setPlayerName);
 playerCellEL("cp3", setPlayerName);
 playerCellEL("cp4", setPlayerName); */
 
-updatePlayerState();
-
+// updatePlayerState();
+updatePlayerDisplay();
 // Call createGameBoard() when the page loads
 document.addEventListener("DOMContentLoaded", createGameBoard);
