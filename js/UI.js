@@ -8,8 +8,7 @@ export const dom = {
     diceBtn: document.getElementById("acak"),
     modeColumn: document.getElementById("mode"),
     uiTurnCount: document.getElementById("uru"),
-    board: document.getElementById('game-board'),
-    numTotalPlayer: document.querySelector('input[name="mode"]:checked').value
+    board: document.getElementById('game-board')
 };
 
 const displayBoxColor = (id, content) => {
@@ -47,13 +46,6 @@ export function animateCell(id, game) {
     }
 }
 
-export function animateNextTurnPlayerCell(player) {
-    const key = Object.keys(GAME_CONFIG.Players).find(key => GAME_CONFIG.Players[key].name === player);
-    if(key) {
-        animateCell(GAME_CONFIG.Players[key].elementId.box);
-    }
-}
-
 export function createGameBoard() {
     dom.board.innerHTML = '';
     for (let i = 1; i <= 100; i++) {
@@ -67,4 +59,8 @@ export function createGameBoard() {
         }
         dom.board.appendChild(cell);
     }
+}
+
+export function playerCellEL(id, fungsi) {
+    document.getElementById(id).addEventListener("click", fungsi);
 }

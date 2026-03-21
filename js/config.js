@@ -60,7 +60,5 @@ export const GAME_CONFIG = {
         43: 80,
         73: 91,
         77: 96
-    },
-    game: false,
-    interval: undefined
+    }
 };

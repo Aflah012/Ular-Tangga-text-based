@@ -1,15 +1,10 @@
 import {
     GAME_CONFIG
 } from "./config.js";
-import {animateNextTurnPlayerCell,createGameBoard, dom, stopAnimation, animateCell, resetPlayerDisplay} from "./UI.js";
+import {playerCellEL, createGameBoard, dom, stopAnimation, animateCell, resetPlayerDisplay} from "./UI.js";
 import AI from "./AI.js";
 import SnakeLadderGame from './Game.js';
 
-let turnCount = 0;
-let consecutiveSixes = 0;
-let indexPlayerTurn = 1;
-let recordCount = 0;
-let currentPlayerName = GAME_CONFIG.Players.A.name;
 let config = {
     players: {...GAME_CONFIG.Players},
     ladders: {...GAME_CONFIG.Ladders},
@@ -39,18 +34,6 @@ function checkPlayer(player) {
     }
 }
 
-dom.diceBtn.addEventListener("click", () => {
-    if(game.getGameStatus()) {
-        runningGame();
-    } else {
-        const numTotalPlayer = document.querySelector('input[name="mode"]:checked').value;
-        game.startGame(numTotalPlayer);
-        dom.modeColumn.style.display = "none";
-        checkPlayer(game.getCurrentPlayerName());
-    }
-});
-dom.resetBtn.addEventListener("click", resetGame);
-
 function setPlayerName() {
     const newName = prompt(`Text ${p.name}'s name!`);
     game.setPlayerName(this.id, newName);
@@ -66,8 +49,6 @@ function displayLogs() {
     dom.console.scrollTop = dom.console.scrollHeight;
 }
 
-dom.resetBtn.addEventListener("click", resetGame);
-
 function resetGame() {
     dom.diceBtn.style.display = "block";
     dom.modeColumn.style.display = "flex";
@@ -76,10 +57,6 @@ function resetGame() {
     resetPlayerDisplay(game.getPlayerStat());
     updatePlayerDisplay();
     dom.console.innerText = "";
-}
-
-function playerCellEL(id, fungsi) {
-    document.getElementById(id).addEventListener("click", fungsi);
 }
 
 function updatePlayerDisplay() {
@@ -94,6 +71,20 @@ function updatePlayerDisplay() {
         playerCellEL(p.elementId.box, setPlayerName);
     });
 }
+
+dom.diceBtn.addEventListener("click", () => {
+    if(game.getGameStatus()) {
+        runningGame();
+    } else {
+        const numTotalPlayer = document.querySelector('input[name="mode"]:checked').value;
+        game.startGame(numTotalPlayer);
+        dom.modeColumn.style.display = "none";
+        checkPlayer(game.getCurrentPlayerName());
+    }
+});
+dom.resetBtn.addEventListener("click", resetGame);
+
+dom.resetBtn.addEventListener("click", resetGame);
 
 updatePlayerDisplay();
 // Call createGameBoard() when the page loads
