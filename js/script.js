@@ -35,9 +35,11 @@ function checkPlayer(player) {
 }
 
 function setPlayerName() {
-    const newName = prompt(`Text ${p.name}'s name!`);
-    game.setPlayerName(this.id, newName);
-    updatePlayerDisplay();
+    const newName = prompt(`Type player's name!`);
+    if(newName) {
+        game.setPlayerName(this.id, newName);
+        updatePlayerDisplay();
+    }
 }
 
 function displayLogs() {
