@@ -60,5 +60,8 @@ export const GAME_CONFIG = {
         43: 80,
         73: 91,
         77: 96
-    }
+    },
+    AI_PLAYER_NAME: ['A','B','C','D'],
+    BOARD_SIZE: 100,
+    MAX_EXECUTIVE_SIXES: 3
 };

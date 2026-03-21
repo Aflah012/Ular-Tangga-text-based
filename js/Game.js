@@ -10,7 +10,7 @@ export default class SnakeLadderGame{
         this.recordCount = 0;
         this.logs = [];
         this.currentPlayerName = "";
-        this.config = {...config};
+        this.config = config;
     }
     
     getCurrentPlayerName() {
@@ -80,7 +80,7 @@ export default class SnakeLadderGame{
     
     calculatePlayerScore(name, dice) {
         Object.values(this.config.players).forEach(p => {
-            if (name === p.name && p.score < 100) {
+            if (name === p.name && p.score < this.config.boardSize) {
                 const uncalculatedScore = p.score;
                 const calculatedScore = this.calculateScore((p.score += dice));
                 p.score = calculatedScore;
@@ -97,16 +97,16 @@ export default class SnakeLadderGame{
         return this.logs;
     }
     
-    calculateScore(dice) {
-        if (this.config.ladders[dice]) {
-            return this.config.ladders[dice];
-        } else if (this.config.snakes[dice]) {
-            return this.config.snakes[dice];
-        } else if (dice > 100) {//Bounce back when the score is more than 100
-            const i = dice - 100;
-            return 100 - i;
+    calculateScore(position) {
+        if (this.config.ladders[position]) {
+            return this.config.ladders[position];
+        } else if (this.config.snakes[position]) {
+            return this.config.snakes[position];
+        } else if (position > this.config.boardSize) {//Bounce back when the score is more than BOARD_SIZE
+            const i = position - this.config.boardSize;
+            return this.config.boardSize - i;
         } else {
-            return dice;
+            return position;
         }
     }
     
@@ -127,7 +127,7 @@ export default class SnakeLadderGame{
     updateIndexPlayerTurn() {
         let totalPlayer = 0;
         Object.values(this.config.players).forEach(p => {
-            if(p.status === true && p.score < 100) {
+            if(p.status === true && p.score < this.config.boardSize) {
                 totalPlayer++;
                 p.turn = totalPlayer;
             } else {
@@ -148,7 +148,7 @@ export default class SnakeLadderGame{
         );
         if (filterCurrentPlayer) {
             //Jika Pemain saat ini mendapatkan angka enam, maka dia berhak mendapatkan jatah gerak pada giliran berikutnya
-            if (dice === 6 && this.config.players[filterCurrentPlayer].score < 100 && this.consecutiveSixes < 3) {
+            if (dice === 6 && this.config.players[filterCurrentPlayer].score < this.config.boardSize && this.consecutiveSixes < this.config.maxExecutiveSixes) {
                 this.indexPlayerTurn = this.config.players[filterCurrentPlayer].turn;
                 this.currentPlayerName = this.config.players[filterCurrentPlayer].name;
             } else {
@@ -165,7 +165,7 @@ export default class SnakeLadderGame{
     
     setWinners() {
         Object.values(this.config.players).forEach(p => {
-            if (p.score === 100 && p.record === 0) {
+            if (p.score === this.config.boardSize && p.record === 0) {
                 this.recordCount++;
                 p.record = this.recordCount;
                 this.indexPlayerTurn = (p.turn - 1);

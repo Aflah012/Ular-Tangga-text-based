@@ -1,6 +1,4 @@
-import {
-    GAME_CONFIG
-} from "./config.js";
+import {GAME_CONFIG} from "./config.js";
 import {playerCellEL, createGameBoard, dom, stopAnimation, animateCell, resetPlayerDisplay} from "./UI.js";
 import AI from "./AI.js";
 import SnakeLadderGame from './Game.js';
@@ -8,7 +6,9 @@ import SnakeLadderGame from './Game.js';
 let config = {
     players: {...GAME_CONFIG.Players},
     ladders: {...GAME_CONFIG.Ladders},
-    snakes: {...GAME_CONFIG.Snakes}
+    snakes: {...GAME_CONFIG.Snakes},
+    boardSize: GAME_CONFIG.BOARD_SIZE,
+    maxExecutiveSixes: GAME_CONFIG.MAX_EXECUTIVE_SIXES
 };
 const robot = new AI();
 const game = new SnakeLadderGame(config);
@@ -47,6 +47,7 @@ function displayLogs() {
     const i = logs.length - 1;
     const log = document.createElement("li");
     log.innerHTML = logs[i].count + ' '+ logs[i].name + ": +" + logs[i].movement + " === " + logs[i].preScore +"  → " + logs[i].score ;//+' ' + message;
+    dom.uiTurnCount.innerText = "Giliran ke: " + (logs[i].count + 1);
     dom.console.appendChild(log);
     dom.console.scrollTop = dom.console.scrollHeight;
 }
@@ -59,14 +60,15 @@ function resetGame() {
     resetPlayerDisplay(game.getPlayerStat());
     updatePlayerDisplay();
     dom.console.innerText = "";
+    dom.uiTurnCount.innerText = "Giliran ke: 0";
 }
 
 function updatePlayerDisplay() {
     Object.values(game.getPlayerStat()).forEach(p => {
-        if (p.score === 100 && p.record > 0) {
+        if (p.record > 0) {
             document.getElementById(p.elementId.score).innerText =
             "No." + p.record + "\n" + p.name;
-        } else if (p.score < 100) {
+        } else {
             document.getElementById(p.elementId.score).innerText =
             p.name + ":\n" + p.score;
         }

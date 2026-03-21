@@ -12,10 +12,6 @@ export default class AI{
     }
     //"A,B,C,D" is AI name
     isAI(playerName) {
-        if (['A','B','C','D'].includes(playerName)) {
-            return true;
-        } else {
-            return false;
-        }
+        return GAME_CONFIG.AI_PLAYER_NAME.includes(playerName);
     }
 }
