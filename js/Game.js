@@ -1,7 +1,7 @@
 
 
-export default class SnakeLadderGame{
-    constructor(config = {}){
+export default class SnakeLadderGame {
+    constructor(config = {}) {
         this.players = {};
         this.game = false;
         this.turnCount = 0;
@@ -12,22 +12,22 @@ export default class SnakeLadderGame{
         this.currentPlayerName = "";
         this.config = config;
     }
-    
+
     getCurrentPlayerName() {
         return this.currentPlayerName;
     }
-    
+
     getGameStatus() {
         return this.game;
     }
-    
+
     getCurrentElIdCell() {
         const key = Object.keys(this.config.players).find(k => this.config.players[k].name === this.currentPlayerName);
-        if(key) {
+        if (key) {
             return this.config.players[key].elementId.box;
         }
     }
-    
+
     setTotalPlayers(uiNumPlayer) {
         const player = this.config.players;
         player.A.status = true;
@@ -39,13 +39,13 @@ export default class SnakeLadderGame{
             }
         }
     }
-    
+
     startGame(selectedTotalPlayer) {
         this.game = true;
         this.setTotalPlayers(selectedTotalPlayer);
         this.currentPlayerName = this.config.players.A.name;
     }
-    
+
     rollDice(numTotalPlayer) {
         const dice = Math.floor(Math.random() * 6) + 1;
         this.calculatePlayerScore(this.currentPlayerName, dice);
@@ -54,20 +54,20 @@ export default class SnakeLadderGame{
         this.turnCount++;
         this.isGameEnded(numTotalPlayer);
     }
-    
+
     setPlayerName(id, newName) {
         const selectedPlayer = Object.keys(this.config.players).find(key => this.config.players[key].elementId.box === id);
-        if(selectedPlayer) {
-            if(newName) {
+        if (selectedPlayer) {
+            if (newName) {
                 this.config.players[selectedPlayer].name = newName;
             }
         }
     }
-    
+
     endGame() {
         this.game = false;
     }
-    
+
     isGameEnded(uiNumPlayer) {
         if (uiNumPlayer === "2p" && this.recordCount > 1) {
             this.endGame();
@@ -77,39 +77,39 @@ export default class SnakeLadderGame{
             this.endGame();
         }
     }
-    
+
     calculatePlayerScore(name, dice) {
         Object.values(this.config.players).forEach(p => {
             if (name === p.name && p.score < this.config.boardSize) {
                 const uncalculatedScore = p.score;
-                const calculatedScore = this.calculateScore((p.score += dice));
-                p.score = calculatedScore;
-                this.updateLogs(this.turnCount, name, dice, uncalculatedScore, calculatedScore);
+                const { newPos, message } = this.calculateScore(p.score += dice);
+                p.score = newPos;
+                this.updateLogs(this.turnCount, name, dice, uncalculatedScore, newPos, message);
             }
         });
     }
-    
-    updateLogs(count, playerName, dice, previousScore, playerScore) {
-        this.logs.push({count: count, name: playerName, movement: dice, preScore: previousScore, score: playerScore});
+
+    updateLogs(count, playerName, dice, previousScore, playerScore, message) {
+        this.logs.push({ count: count, name: playerName, movement: dice, preScore: previousScore, score: playerScore, message: message });
     }
-    
+
     getLogs() {
         return this.logs;
     }
-    
+
     calculateScore(position) {
         if (this.config.ladders[position]) {
-            return this.config.ladders[position];
+            return { newPos: this.config.ladders[position], message: "Naik Tangga" };
         } else if (this.config.snakes[position]) {
-            return this.config.snakes[position];
+            return { newPos: this.config.snakes[position], message: "Masuk Mulut Ular" };
         } else if (position > this.config.boardSize) {//Bounce back when the score is more than BOARD_SIZE
             const i = position - this.config.boardSize;
-            return this.config.boardSize - i;
+            return { newPos: this.config.boardSize - i, message: "Gagal Masuk" };
         } else {
-            return position;
+            return { newPos: position, message: "" };
         }
     }
-    
+
     resetGame() {
         this.turnCount = 0;
         this.currentPlayerName = "";
@@ -123,23 +123,23 @@ export default class SnakeLadderGame{
             p.turn = 0;
         });
     }
-    
+
     updateIndexPlayerTurn() {
         let totalPlayer = 0;
         Object.values(this.config.players).forEach(p => {
-            if(p.status === true && p.score < this.config.boardSize) {
+            if (p.status === true && p.score < this.config.boardSize) {
                 totalPlayer++;
                 p.turn = totalPlayer;
             } else {
                 p.turn = 0;
             }
         });
-        if(this.indexPlayerTurn >= totalPlayer) {
+        if (this.indexPlayerTurn >= totalPlayer) {
             this.indexPlayerTurn = 0;
         }
         this.indexPlayerTurn++;
     }
-    
+
     nextTurn(dice) {
         this.consecutiveSixes++;
         this.updateIndexPlayerTurn();
@@ -162,7 +162,7 @@ export default class SnakeLadderGame{
             }
         }
     }
-    
+
     setWinners() {
         Object.values(this.config.players).forEach(p => {
             if (p.score === this.config.boardSize && p.record === 0) {
@@ -172,7 +172,7 @@ export default class SnakeLadderGame{
             }
         });
     }
-    
+
     getPlayerStat() {
         return this.config.players;
     }

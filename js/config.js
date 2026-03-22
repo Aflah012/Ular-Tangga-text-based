@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
     Players: {
-        A : {
+        A: {
             status: false,
             name: 'A',
             score: 0,
@@ -11,7 +11,7 @@ export const GAME_CONFIG = {
                 box: 'cp1'
             }
         },
-        B : {
+        B: {
             status: false,
             name: 'B',
             score: 0,
@@ -22,7 +22,7 @@ export const GAME_CONFIG = {
                 box: 'cp2'
             }
         },
-        C : {
+        C: {
             status: false,
             name: 'C',
             score: 0,
@@ -33,7 +33,7 @@ export const GAME_CONFIG = {
                 box: 'cp3'
             }
         },
-        D : {
+        D: {
             status: false,
             name: 'D',
             score: 0,
@@ -61,7 +61,7 @@ export const GAME_CONFIG = {
         73: 91,
         77: 96
     },
-    AI_PLAYER_NAME: ['A','B','C','D'],
+    AI_PLAYER_NAME: ['A', 'B', 'C', 'D'],
     BOARD_SIZE: 100,
     MAX_EXECUTIVE_SIXES: 3
 };

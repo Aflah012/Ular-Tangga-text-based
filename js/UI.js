@@ -1,4 +1,4 @@
-import {GAME_CONFIG} from './config.js';
+import { GAME_CONFIG } from './config.js';
 
 let animationInterval;
 
@@ -22,7 +22,7 @@ export function resetPlayerDisplay(players) {
 }
 
 export function stopAnimation() {
-    if(animationInterval) {
+    if (animationInterval) {
         clearInterval(animationInterval);
     }
 }
