@@ -113,9 +113,11 @@ Simply open the `index.html` file in your browser.
 ### Option 2: Using Express Server
 If you have Node.js installed:
 
-bash
+```bash
 npm install express
+
 node ser.js
+```
 
 Then navigate to `http://localhost:3000` in your browser.
 
