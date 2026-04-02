@@ -18,7 +18,9 @@
   "type": "javascript-modules",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint \"**/*.{js,ts,tsx}\" --fix"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
