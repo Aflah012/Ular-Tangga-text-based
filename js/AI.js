@@ -1,4 +1,3 @@
-import {dom} from './UI.js';
 import {GAME_CONFIG} from './config.js';
 
 export default class AI{
